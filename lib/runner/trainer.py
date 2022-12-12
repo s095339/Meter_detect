@@ -3,7 +3,11 @@ import torch.nn as nn
 import torch.functional as F
 from torch.utils.data import DataLoader
 from lib.model.model import MAJIYABAKUNet
-
+#for loss------
+from lib.core.loss import WeightsMse
+#for validate----
+from lib.core.acc import angle_calculate
+#------
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 class trainer:
     def __init__(self,cfg,trainset,valset = None,arg = None):
@@ -24,7 +28,9 @@ class trainer:
         self.model = MAJIYABAKUNet(cfg = self.cfg, arg = self.arg).to(device)
         #LOSS-------------------------------------
         if self.cfg.TRAIN.LOSS == "":
-            self.loss_fn = nn.MSELoss()#會改loss
+            self.loss_fn = nn.MSELoss(reduction="sum")#會改loss
+        else:
+            self.loss_fn = eval(self.cfg.TRAIN.LOSS)
         #optim--------------------------------------
         if self.cfg.TRAIN.OPTIM.lower() == "adam":
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
@@ -40,7 +46,7 @@ class trainer:
         result = time.localtime()
         dirname = f"{result.tm_year}{result.tm_mon}{result.tm_mday}\
             _{result.tm_hour}_{result.tm_min}_{self.cfg.MODEL.BACKBONE}"
-
+        os.mkdir()
         os.mkdir(self.cfg.TRAIN.SAVEPTH,dirname)
         savepth = os.path.join(self.cfg.TRAIN.SAVEPTH,dirname)
         torch.save(self.model.state_dict(), savepth)

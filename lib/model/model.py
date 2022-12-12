@@ -15,8 +15,11 @@ class decoder(nn.Module):
         
         self.layer = nn.Sequential(
             nn.Linear(1000,500),
+            nn.ReLU(),
             nn.Linear(500,100),
-            nn.Linear(100,8)
+            nn.ReLU(),
+            nn.Linear(100,8),
+            nn.ReLU()
         )
 
     def forward(self,x):
