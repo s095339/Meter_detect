@@ -1,5 +1,13 @@
 # 1 Meter Detect
-
+```python-
+TODO list：
+1.Add validation 
+2.loss function 
+3.prediction visualization
+4.determinded accuracy 
+5.add avalible backbone
+6.log file and plot to record training status
+```
 ## 1.file 
 
 The repo contains following files and dirs
