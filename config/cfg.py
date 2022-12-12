@@ -21,15 +21,17 @@ _C.DATASET.LABELROOT = './data/train/train_GT_keypoints.json'      # the path of
 _C.DATASET.PREPROCESS = 'padding' #resize #看是要padding 還是做resize  padding 或 resize
 _C.DATASET.PADDINGSIZE = [720 , 720]
 
-
+#pretrain
+#test 或training的時候的pretrain weight
+_C.PRETRAIN = "./weights/20221212_14_16_resnet34/model_ep1_bs4.pth"
 # train
 _C.TRAIN = CN(new_allowed=True)
 _C.TRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)
 _C.TRAIN.BS = 4
-_C.TRAIN.EPOCH = 10
+_C.TRAIN.EPOCH = 1
 _C.TRAIN.OPTIM = "adam" #或 SGD 或 Adagrad
 _C.TRAIN.LOSS = "WeightsMse"
-_C.TRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊
+_C.TRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
 # testing
 _C.TEST = CN(new_allowed=True)
 

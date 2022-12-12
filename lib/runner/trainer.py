@@ -24,8 +24,14 @@ class trainer:
             self.val = True
             self.valloader = DataLoader(valset, batch_size=1, shuffle=True)
         #initialize----------------------------------
-        #model---------------------------------
+        #load model---------------------------------
         self.model = MAJIYABAKUNet(cfg = self.cfg, arg = self.arg).to(device)
+        print(self.model)
+        #pretrined weights--------------------------------
+        if self.cfg.PRETRAIN:
+            print(f"loading pretrained weight:{self.cfg.PRETRAIN}")
+            weights = torch.load(self.cfg.PRETRAIN)
+            self.model.load_state_dict(weights)
         #LOSS-------------------------------------
         if self.cfg.TRAIN.LOSS == "":
             self.loss_fn = nn.MSELoss(reduction="sum")#會改loss
@@ -44,11 +50,11 @@ class trainer:
     def save_model(self):
         import os,time
         result = time.localtime()
-        dirname = f"{result.tm_year}{result.tm_mon}{result.tm_mday}\
-            _{result.tm_hour}_{result.tm_min}_{self.cfg.MODEL.BACKBONE}"
-        os.mkdir()
-        os.mkdir(self.cfg.TRAIN.SAVEPTH,dirname)
-        savepth = os.path.join(self.cfg.TRAIN.SAVEPTH,dirname)
+        dirname = f"{result.tm_year}{result.tm_mon}{result.tm_mday}_{result.tm_hour}_{result.tm_min}_{self.cfg.MODEL.BACKBONE}"
+        
+        dirpath = os.path.join(self.cfg.TRAIN.SAVEPTH,dirname)
+        os.mkdir(dirpath)
+        savepth = os.path.join(dirpath,f"model_ep{self.ep}_bs{self.bs}.pth")
         torch.save(self.model.state_dict(), savepth)
     def validate(self):
         for _, (X,y) in enumerate(self.valloader):
