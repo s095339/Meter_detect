@@ -8,6 +8,9 @@ TODO list：
 5.add avalible backbone
 6.log file and plot to record training status
 ```
+## training data
+label：點點：最小值，最大值，中央值，指針值。
+
 ## 1.file 
 
 The repo contains following files and dirs
@@ -34,4 +37,4 @@ weights-
 For training, copy the command:
 >python main.py --mode train
 
-##
+## 角度

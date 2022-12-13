@@ -39,16 +39,17 @@ def train(arg,cfg):
     trainset = dataset
     #trainset,valset = random_split(dataset, [8000,2000])
     #show img
-    """
-    import cv2 #-----------
-    import numpy as np #---------------
+    from lib.util.visualization import visual
     image,label  = next(iter(trainset))
     img = image.detach().numpy().transpose(1,2,0)
-    cv2.imshow("mat.",img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    print("imgshape = ",img.shape)
-    """
+    label = label.detach().numpy()
+    #點點：最小值，最大值，中央值，指針值。
+    #visual(img,label,visual = True)
+
+    from lib.core.acc import angle_calculate
+    print(angle_calculate(label,mode = "degree"))
+
+    
     #----------------------------------
     from lib.runner.trainer import trainer
     Trainer = trainer(cfg = cfg,
@@ -56,7 +57,7 @@ def train(arg,cfg):
                       arg = arg)
 
     Trainer.run()
-
+    
 def main(arg,cfg):
     if arg.mode == "train":
         train(arg,cfg)

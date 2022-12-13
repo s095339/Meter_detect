@@ -10,20 +10,26 @@ def WeightsMse(pred,label):
     想法:錶面的中心點是最critical的,如果中心點的位置錯了，那其他點再怎麼正確
     都是大錯誤。所以讓中心點的loss比較大
     其次重要的是錶的最大值最小值，最不重要的是指針的位置
+
+    label = [a,b,c,d]
+    pred = [a_pred,b_pred,c_pred,d_pred]
+    loss = w0||a-a_pred||+w1||b-b_pred||+w2||c-c_pred||+w3||d-d_pred||
     """
+    point_weights = [0.8,0.8, #最小值
+                    0.8,0.8,  #最大值
+                    1.5,1.5,  #中心點
+                    0.7,0.7]  #指針值
     loss_fn = nn.MSELoss()
-    weight = torch.tensor([0.8,0.8,1.3,1.3,0.7,0.7,0.8,0.8]).to(device)
-    #print("pred = ",pred)
-    #print("label = ",label)
+    weight = torch.tensor(point_weights).to(device)
+    #點點：最小值，最大值，中心，指針值。
     loss = loss_fn(pred,label)
-    #print(loss)
+  
     for b in range(pred.shape[0]):
         pred[b]*=weight
         label*=weight
-    #print("pred = ",pred)
-    #print("label = ",label)
+
     loss = loss_fn(pred,label)
-    #print(loss)
+ 
     return loss
 
 
