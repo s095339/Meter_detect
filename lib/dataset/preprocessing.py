@@ -3,10 +3,18 @@
 import numpy as np
 import cv2
 #label preprocessing-----------------------
-def label_fit():
-    return
+def label_fit(ori_img,resized_img,label):
+    new_label = np.array([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],dtype=type(label[0]))
+    h_ratio = resized_img.shape[0]/ori_img.shape[0]
+    w_ratio = resized_img.shape[1]/ori_img.shape[1]
+    #print("h_ratio,w_ratio",h_ratio,w_ratio)
+    for i in range(4):
+        new_label[i*2] = label[i*2] * w_ratio
+        new_label[i*2+1]= label[i*2+1] * h_ratio
+    
+    return new_label
 #image preprocessing-----------------------
-def padding_transform(img,pad_size, mode = "ru"):
+def padding(img,pad_size, mode = "ru"):
     if mode == "ru":
         pad_h  = pad_size[0]-img.shape[0]
         pad_w = pad_size[1]-img.shape[1]
@@ -15,6 +23,6 @@ def padding_transform(img,pad_size, mode = "ru"):
     if mode == "mid":
         pass
 
-def resize_transform(img,label,resize_size):
-
-    return
+def resize(img,resize_size):
+    image = img.copy()
+    return cv2.resize(image,resize_size)

@@ -36,6 +36,7 @@ class trainer:
         if self.cfg.TRAIN.LOSS == "":
             self.loss_fn = nn.MSELoss(reduction="sum")#會改loss
         else:
+            print("LOSS = ",self.cfg.TRAIN.LOSS)
             self.loss_fn = eval(self.cfg.TRAIN.LOSS)
         #optim--------------------------------------
         if self.cfg.TRAIN.OPTIM.lower() == "adam":

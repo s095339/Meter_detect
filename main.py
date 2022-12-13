@@ -29,7 +29,7 @@ def train(arg,cfg):
 
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
     target_transform = torch.tensor
     dataset = MeterDataset(cfg = cfg,
@@ -39,17 +39,22 @@ def train(arg,cfg):
     trainset = dataset
     #trainset,valset = random_split(dataset, [8000,2000])
     #show img
-    from lib.util.visualization import visual
-    image,label  = next(iter(trainset))
+    """
+    from lib.util.visualization import visual,meterlike
+    image,label  = trainset[9999]
     img = image.detach().numpy().transpose(1,2,0)
     label = label.detach().numpy()
     #點點：最小值，最大值，中央值，指針值。
-    #visual(img,label,visual = True)
+    print(label)
+    print(img.shape)
+    visual(img,label,isvisual = True)
+    #meterlike(img,label,isvisual = True)
+    
 
     from lib.core.acc import angle_calculate
     print(angle_calculate(label,mode = "degree"))
 
-    
+    """
     #----------------------------------
     from lib.runner.trainer import trainer
     Trainer = trainer(cfg = cfg,

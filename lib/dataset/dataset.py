@@ -1,14 +1,11 @@
 import os
-import pandas as pd
-from torchvision.io import read_image
-import torch
 from torch.utils.data import Dataset
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 import matplotlib.pyplot as plt
 import json
 
-from .preprocessing import padding_transform
+from .preprocessing import padding,resize,label_fit
 import numpy as np
 import cv2
 
@@ -25,7 +22,9 @@ class MeterDataset(Dataset):
         #print(_C.LOSS)
         if preprocess.lower() == "padding":
             self.imgsize = cfg.DATASET.PADDINGSIZE
-            self.preprocess = padding_transform
+        else:
+            self.imgsize = cfg.DATASET.IMGSIZE
+        self.preprocess = eval(f"{cfg.DATASET.PREPROCESS}")
         
         self.transform = transform
         self.target_transform = target_transform
@@ -41,10 +40,18 @@ class MeterDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_list[idx]["filename"])
         label_ID = self.img_list[idx]["id"]
-        image = self.preprocess(cv2.imread(img_path),self.imgsize)
+        original_img = cv2.imread(img_path)
         
-        label = np.array( self.label_list[label_ID]['keypoints'] )
+        #print(original_img.shape)
+        
 
+        label = np.array( self.label_list[label_ID]['keypoints'] )
+        #print(label)
+
+        image = self.preprocess(original_img,self.imgsize)
+        if self.preprocess == resize:
+            label = label_fit(original_img,image,label)
+            
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
@@ -59,4 +66,4 @@ if __name__ == '__main__':
     data = json.load(f)
     print(len(data))
     print(data["annotations"][0]["keypoints"])
-    print(cfg)
+    

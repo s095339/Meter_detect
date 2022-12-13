@@ -18,12 +18,13 @@ _C.MODEL.BACKBONE = 'resnet34'  # resnet隨便你選
 _C.DATASET = CN(new_allowed=True)
 _C.DATASET.DATAROOT = './data/train/train_img'       # the path of images folder
 _C.DATASET.LABELROOT = './data/train/train_GT_keypoints.json'      # the path of det_annotations folder
-_C.DATASET.PREPROCESS = 'padding' #resize #看是要padding 還是做resize  padding 或 resize
+_C.DATASET.PREPROCESS = 'resize' #resize #看是要padding 還是做resize  padding 或 resize
 _C.DATASET.PADDINGSIZE = [720 , 720]
+_C.DATASET.IMGSIZE = [640,640]
 
 #pretrain
 #test 或training的時候的pretrain weight
-_C.PRETRAIN = "./weights/20221212_14_16_resnet34/model_ep1_bs4.pth"
+_C.PRETRAIN = "" #"./weights/20221212_14_16_resnet34/model_ep1_bs4.pth"
 # train
 _C.TRAIN = CN(new_allowed=True)
 _C.TRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)
