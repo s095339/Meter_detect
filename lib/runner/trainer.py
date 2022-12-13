@@ -8,7 +8,23 @@ from lib.core.loss import WeightsMse
 #for validate----
 from lib.core.acc import angle_calculate
 #------
+from tqdm import tqdm
+#------
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+#爽拉我就是要加這個鬼
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 class trainer:
     def __init__(self,cfg,trainset,valset = None,arg = None):
         #------
@@ -58,15 +74,24 @@ class trainer:
         savepth = os.path.join(dirpath,f"model_ep{self.ep}_bs{self.bs}.pth")
         torch.save(self.model.state_dict(), savepth)
     def validate(self):
+        total_loss = 0.0
+        progress = tqdm(total = len(self.valloader))
         for _, (X,y) in enumerate(self.valloader):
-            pred = self.model(X)
-        pass
+            X = X.to(device).float()
+            y = y.to(device).float()
+            with torch.no_grad():
+                pred = self.model(X)
+            total_loss += self.loss_fn(pred, y)
+            progress.update(1)
+        mean_loss = total_loss/len(self.valloader)
+        print(f"{bcolors.OKGREEN}validate mean loss = :{bcolors.WARNING}{mean_loss}")
     def train_loop(self):
         size = len(self.trainloader.dataset)
         for batch, (X, y) in enumerate(self.trainloader):
             # Compute prediction and loss
             X = X.to(device).float()
             y = y.to(device).float()
+            
             pred = self.model(X)
             loss = self.loss_fn(pred, y)
 

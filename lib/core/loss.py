@@ -8,7 +8,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 def WeightsMse(pred,label):
     """
     想法:錶面的中心點是最critical的,如果中心點的位置錯了，那其他點再怎麼正確
-    都是大錯誤。所以讓中心點的loss比較大
+    都是沒用。所以讓中心點的loss比較大
     其次重要的是錶的最大值最小值，最不重要的是指針的位置
 
     label = [a,b,c,d]
