@@ -36,8 +36,8 @@ def train(arg,cfg):
                             transform = transform,
                             target_transform = target_transform
                             )
-    #trainset = dataset
-    trainset,valset = random_split(dataset, [9000,1000])
+    trainset = dataset
+    #trainset,valset = random_split(dataset, [9000,1000])
     #show img
     """
     from lib.util.visualization import visual,meterlike
@@ -59,7 +59,7 @@ def train(arg,cfg):
     from lib.runner.trainer import trainer
     Trainer = trainer(cfg = cfg,
                       trainset = trainset,
-                      valset = valset,
+                      #valset = valset,
                       arg = arg)
 
     Trainer.run()

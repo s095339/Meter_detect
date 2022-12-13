@@ -76,17 +76,19 @@ class trainer:
     def validate(self):
         total_loss = 0.0
         progress = tqdm(total = len(self.valloader))
+        self.model.eval()
         for _, (X,y) in enumerate(self.valloader):
             X = X.to(device).float()
             y = y.to(device).float()
             with torch.no_grad():
                 pred = self.model(X)
-            total_loss += self.loss_fn(pred, y)
-            progress.update(1)
+                total_loss += self.loss_fn(pred, y)
+                progress.update(1)
         mean_loss = total_loss/len(self.valloader)
-        print(f"{bcolors.OKGREEN}validate mean loss = :{bcolors.WARNING}{mean_loss}")
+        print(f"{bcolors.OKGREEN}validate mean loss = :{bcolors.WARNING}{mean_loss}{bcolors.ENDC}")
     def train_loop(self):
         size = len(self.trainloader.dataset)
+        self.model.train()
         for batch, (X, y) in enumerate(self.trainloader):
             # Compute prediction and loss
             X = X.to(device).float()
