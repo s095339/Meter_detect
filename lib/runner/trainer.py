@@ -99,13 +99,17 @@ class trainer:
 
             # Backpropagation
             self.optimizer.zero_grad()
-            loss.backward()
+            #loss.backward()
+        
+
+            loss.backward(retain_graph=True)
             self.optimizer.step()
 
             if batch % 100 == 0:
                 loss, current = loss.item(), batch * len(X)
                 print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
     def run(self):
+        torch.autograd.set_detect_anomaly(True)
         for ep in range(self.ep):
             print(ep)
             self.train_loop()

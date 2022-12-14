@@ -4,6 +4,10 @@ import numpy as np
 import cv2
 #label preprocessing-----------------------
 def label_fit(ori_img,resized_img,label):
+    """
+    resize之後label的位置也要跟著變
+    這邊是做resize之後的label mapping。
+    """
     new_label = np.array([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],dtype=type(label[0]))
     h_ratio = resized_img.shape[0]/ori_img.shape[0]
     w_ratio = resized_img.shape[1]/ori_img.shape[1]
@@ -26,3 +30,7 @@ def padding(img,pad_size, mode = "ru"):
 def resize(img,resize_size):
     image = img.copy()
     return cv2.resize(image,resize_size)
+
+def img_rotate(img,label):
+    pass
+

@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.functional as F
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 def WeightsMse(pred,label):
     """
     想法:錶面的中心點是最critical的,如果中心點的位置錯了，那其他點再怎麼正確
@@ -15,20 +16,21 @@ def WeightsMse(pred,label):
     pred = [a_pred,b_pred,c_pred,d_pred]
     loss = w0||a-a_pred||+w1||b-b_pred||+w2||c-c_pred||+w3||d-d_pred||
     """
-    point_weights = [0.8,0.8, #最小值
-                    0.8,0.8,  #最大值
+    point_weights = [1,1, #最小值
+                    1,1,  #最大值
                     1.5,1.5,  #中心點
-                    0.7,0.7]  #指針值
+                    1,1]  #指針值
     loss_fn = nn.MSELoss()
-    weight = torch.tensor(point_weights).to(device)
-    #點點：最小值，最大值，中心，指針值。
-    loss = loss_fn(pred,label)
-  
-    for b in range(pred.shape[0]):
-        pred[b]*=weight
-        label*=weight
+    weight_stack = []
+    for i in range(pred.shape[0]):#bs
+        weight_stack.append(point_weights)
+    
+    weights = torch.tensor(weight_stack).to(device)
+    weights = torch.sqrt(weights)
 
-    loss = loss_fn(pred,label)
+    loss = loss_fn(weights*pred,weights*label)
+    #點點：最小值，最大值，中心，指針值。
+    #print(loss)
  
     return loss
 

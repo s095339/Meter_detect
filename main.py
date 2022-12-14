@@ -13,12 +13,40 @@ def parse_args():
                         type=str,
                         default=''
                         )
-
+    parser.add_argument('--impleset',
+                        help='dataset',
+                        type=str,
+                        default=''
+                        )
     args = parser.parse_args()
 
     return args
 def test(arg,cfg):
     pass
+def implement(arg,cfg):
+    from lib.dataset.dataset import testDataset,MeterDataset
+    from torch.utils.data import random_split
+    from torchvision import transforms
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+    target_transform = torch.tensor
+    if arg.impleset == "test" or "":
+        dataset = testDataset(cfg = cfg,
+                                transform = transform,
+                                )
+    elif arg.impleset == "train":
+        dataset = MeterDataset(cfg = cfg,
+                                transform = transform,
+                                target_transform=torch.tensor
+                                )
+    from lib.runner.implementation import implementer
+    Implementer = implementer(cfg = cfg,
+                      dataset = dataset,
+                      #valset = valset,
+                      arg = arg)
+    Implementer.run(test_number=10)
 def train(arg,cfg):
     
     #prepare data-----------------
@@ -68,9 +96,9 @@ def main(arg,cfg):
     if arg.mode == "train":
         train(arg,cfg)
     elif arg.mode == 'test':
-        test(arg.cfg)
-    else:
-        pass
+        test(arg,cfg)
+    else: # arg.mode == "implement":
+        implement(arg,cfg)
 
 
     return

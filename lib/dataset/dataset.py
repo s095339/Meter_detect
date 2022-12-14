@@ -60,10 +60,32 @@ class MeterDataset(Dataset):
 
 
 
-if __name__ == '__main__':
-    jason_pth = "D:/DL/Meter_detect/data/train/train_GT_keypoints.json"
-    f = open(jason_pth)
-    data = json.load(f)
-    print(len(data))
-    print(data["annotations"][0]["keypoints"])
-    
+class testDataset(Dataset):
+    def __init__(self, cfg, transform ):
+        #read cfg-------------------
+        img_dir = cfg.TEST.DATAROOT
+        preprocess = cfg.TEST.PREPROCESS
+        #---------------------------
+        self.img_dir = img_dir
+        self.img_list = os.listdir(img_dir)
+        #print(_C.LOSS)
+        if preprocess.lower() == "padding":
+            self.imgsize = cfg.TEST.PADDINGSIZE
+        else:
+            self.imgsize = cfg.TEST.IMGSIZE
+        self.preprocess = eval(f"{cfg.TEST.PREPROCESS}")
+        
+        self.transform = transform
+   
+        print("Len of data = ",len(self))
+
+    def __len__(self):
+        return len(self.img_list)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.img_dir, self.img_list[idx])
+        original_img = cv2.imread(img_path)
+        image = self.preprocess(original_img,self.imgsize)
+        if self.transform:
+            image = self.transform(image)
+        return image
