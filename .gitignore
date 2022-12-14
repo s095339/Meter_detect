@@ -1,3 +1,7 @@
 data
 ./weights/*
-.pyc
+*.pyc
+forfun.py
+inference.py
+log
+__pycache__

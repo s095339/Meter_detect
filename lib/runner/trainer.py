@@ -10,6 +10,8 @@ from lib.core.acc import angle_calculate
 #------
 from tqdm import tqdm
 #------
+from .logger import logger
+#======
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 #爽拉我就是要加這個鬼
@@ -39,6 +41,8 @@ class trainer:
         if valset != None:
             self.val = True
             self.valloader = DataLoader(valset, batch_size=1, shuffle=True)
+        #logger
+        self.logger = logger(cfg)
         #initialize----------------------------------
         #load model---------------------------------
         self.model = MAJIYABAKUNet(cfg = self.cfg, arg = self.arg).to(device)
@@ -86,7 +90,7 @@ class trainer:
                 progress.update(1)
         mean_loss = total_loss/len(self.valloader)
         print(f"{bcolors.OKGREEN}validate mean loss = :{bcolors.WARNING}{mean_loss}{bcolors.ENDC}")
-    def train_loop(self):
+    def train_loop(self,ep):
         size = len(self.trainloader.dataset)
         self.model.train()
         for batch, (X, y) in enumerate(self.trainloader):
@@ -105,14 +109,16 @@ class trainer:
             loss.backward(retain_graph=True)
             self.optimizer.step()
 
-            if batch % 100 == 0:
+            if batch % 50 == 0:
                 loss, current = loss.item(), batch * len(X)
                 print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+                self.logger.log_insert(ep = ep,batch = batch,loss = loss)
     def run(self):
         torch.autograd.set_detect_anomaly(True)
         for ep in range(self.ep):
-            print(ep)
-            self.train_loop()
+            print("epoch = ",ep)
+            self.train_loop(ep)
             if self.val:
                 self.validate()
+        self.logger.export_loss_plot()
         self.save_model()
