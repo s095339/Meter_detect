@@ -17,14 +17,15 @@ class implementer:
     隨機對幾筆資料(可以是測試或訓練資料)做implementation並提供可視化結果。
     判斷這個東西到底有沒有用。
     """
-    def __init__(self,cfg,dataset,arg = None):
+    def __init__(self,cfg,dataset,inv_train = None,arg = None):
         #------
         self.cfg = cfg
         self.arg = arg
         #------
         self.loader = DataLoader(dataset, batch_size = 1, shuffle=True)
         self.model = MAJIYABAKUNet(cfg = self.cfg, arg = self.arg).to(device)
-    
+        #------
+        self.inv_transform = inv_train
         #pretrined weights--------------------------------
         if self.cfg.PRETRAIN:
             print(f"loading pretrained weight:{self.cfg.PRETRAIN}")
@@ -45,7 +46,8 @@ class implementer:
         with torch.no_grad():
             pred = self.model(X.clone())
         from lib.util.visualization import meterlike
-        
+        if self.inv_transform:
+            X = self.inv_transform(X)
         X  = X.cpu().detach().numpy().squeeze().transpose(1,2,0)
         print(X.shape)
         pred  = pred.cpu().detach().numpy().squeeze()

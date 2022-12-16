@@ -18,13 +18,13 @@ _C.MODEL.BACKBONE = 'resnet34'  # resnet隨便你選
 _C.DATASET = CN(new_allowed=True)
 _C.DATASET.DATAROOT = './data/train/train_img'       # the path of images folder
 _C.DATASET.LABELROOT = './data/train/train_GT_keypoints.json'      # the path of det_annotations folder
-_C.DATASET.PREPROCESS = 'resize' #resize #看是要padding 還是做resize  padding 或 resize
+_C.DATASET.PREPROCESS = 'resize' #resize #看是要padding  勸你不要用padding
 _C.DATASET.PADDINGSIZE = [720 , 720]
 _C.DATASET.IMGSIZE = [640,640]
 
 #pretrain
 #test 或training的時候的pretrain weight
-_C.PRETRAIN = ""#"./weights/20221214_5_15_resnet34/model_ep20_bs8.pth" #"./weights/20221212_14_16_resnet34/model_ep1_bs4.pth"
+_C.PRETRAIN = "./weights/model_ep50_bs12.pth"#"./weights/20221214_5_15_resnet34/model_ep20_bs8.pth" #"./weights/20221212_14_16_resnet34/model_ep1_bs4.pth"
 # train
 _C.TRAIN = CN(new_allowed=True)
 _C.TRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)
@@ -33,6 +33,16 @@ _C.TRAIN.EPOCH = 2
 _C.TRAIN.OPTIM = "adam" #或 SGD 或 Adagrad
 _C.TRAIN.LOSS = "WeightsMse"
 _C.TRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
+#self-supervised
+_C.SUPTRAIN = CN(new_allowed=True)
+_C.SUPTRAIN.LR0 = 0.0001  # initial learning rate (SGD=1E-2, Adam=1E-3)
+_C.SUPTRAIN.BS = 8 #必須是48的因數。
+_C.SUPTRAIN.EPOCH = 2
+_C.SUPTRAIN.OPTIM = "adam" #或 SGD 或 Adagrad
+_C.SUPTRAIN.LOSS = "RaidusVarLoss"
+_C.SUPTRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
+_C.SUPTRAIN.DATAROOT = "./data/sup"
+
 # testing
 _C.TEST = CN(new_allowed=True)
 _C.TEST.DATAROOT = "./data/test/test"

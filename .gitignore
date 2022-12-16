@@ -1,5 +1,6 @@
 data
 ./weights/*
+*.pth
 *.pyc
 forfun.py
 inference.py

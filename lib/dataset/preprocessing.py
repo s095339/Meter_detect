@@ -17,7 +17,10 @@ def label_fit(ori_img,resized_img,label):
         new_label[i*2+1]= label[i*2+1] * h_ratio
     
     return new_label
-#image preprocessing-----------------------
+def resize(img,resize_size):
+    image = img.copy()
+    return cv2.resize(image,resize_size)
+#padding----------------------------------------------
 def padding(img,pad_size, mode = "ru"):
     if mode == "ru":
         pad_h  = pad_size[0]-img.shape[0]
@@ -26,11 +29,7 @@ def padding(img,pad_size, mode = "ru"):
         return padded_image
     if mode == "mid":
         pass
-
-def resize(img,resize_size):
-    image = img.copy()
-    return cv2.resize(image,resize_size)
-
+#----------------------------------------------
 def img_rotate(img,label):
     pass
 

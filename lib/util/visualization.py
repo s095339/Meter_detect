@@ -29,7 +29,7 @@ def visual(img,key_points,isvisual = False):
     #print(p)
     for i in range(4):
         image = cv2.circle(image,p[i],radius=5,color = color[i], thickness=-1)
-    if visual:
+    if isvisual:
         img_show(image)
 
     return image

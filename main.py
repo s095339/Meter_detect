@@ -1,10 +1,14 @@
 import argparse 
 import os
-
+from lib.dataset.dataset import testDataset,MeterDataset,SupportDatset
+from torch.utils.data import random_split
+from torchvision import transforms
 import torch
 
 from config.cfg import _C as cfg
 
+#---
+from lib.util.visualization import img_show
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Do anything you want through command line')
@@ -23,14 +27,39 @@ def parse_args():
     return args
 def test(arg,cfg):
     pass
-def implement(arg,cfg):
-    from lib.dataset.dataset import testDataset,MeterDataset
-    from torch.utils.data import random_split
-    from torchvision import transforms
+def train_sup(arg,cfg):
     transform = transforms.Compose([
         transforms.ToTensor(),
         #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
+    dataset =  SupportDatset(
+        cfg = cfg,
+        transform = transform
+    )
+    """
+    data = next(iter(dataset))
+    print(data.shape)
+    img = data[3].detach().numpy().transpose(1,2,0)
+    img_show(img)
+     """
+    from lib.runner.trainer import sup_trainer
+    trainer = sup_trainer(
+        cfg = cfg,
+        trainset = dataset,
+        arg = arg
+    )
+    trainer.run()
+def implement(arg,cfg):
+
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+    invTrans = transforms.Compose([ transforms.Normalize(mean = [ 0., 0., 0. ],
+                                                     std = [ 1/0.229, 1/0.224, 1/0.225 ]),
+                                    transforms.Normalize(mean = [ -0.485, -0.456, -0.406 ],
+                                                     std = [ 1., 1., 1. ]),
+                                 ])
     target_transform = torch.tensor
     if arg.impleset == "test" or "":
         dataset = testDataset(cfg = cfg,
@@ -44,11 +73,10 @@ def implement(arg,cfg):
     from lib.runner.implementation import implementer
     Implementer = implementer(cfg = cfg,
                       dataset = dataset,
-                      #valset = valset,
+                      #inv_train = invTrans,
                       arg = arg)
     Implementer.run(test_number=10)
 def train(arg,cfg):
-    
     #prepare data-----------------
     from lib.dataset.dataset import MeterDataset
     
@@ -57,7 +85,7 @@ def train(arg,cfg):
 
     transform = transforms.Compose([
         transforms.ToTensor(),
-        #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
     target_transform = torch.tensor
     dataset = MeterDataset(cfg = cfg,
@@ -89,7 +117,6 @@ def train(arg,cfg):
                       trainset = trainset,
                       #valset = valset,
                       arg = arg)
-
     Trainer.run()
     
 def main(arg,cfg):
@@ -97,12 +124,11 @@ def main(arg,cfg):
         train(arg,cfg)
     elif arg.mode == 'test':
         test(arg,cfg)
+    elif arg.mode == 'train_sup' or arg.mode == 'suptrain':
+        train_sup(arg,cfg)
     else: # arg.mode == "implement":
         implement(arg,cfg)
-
-
     return
-
 if __name__ == '__main__':
     args = parse_args()
     main(args,cfg)

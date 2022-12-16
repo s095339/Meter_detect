@@ -32,6 +32,7 @@ weights-
 ```
 ## 2.enviroment
 用之前做車道辨識的環境就OK了
+>conda install pytorch==1.7.0 torchvision==0.8.0 cudatoolkit=10.2 -c pytorch
 
 ## 3.train
 For training, copy the command:
