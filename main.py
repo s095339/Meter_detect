@@ -73,7 +73,7 @@ def implement(arg,cfg):
     from lib.runner.implementation import implementer
     Implementer = implementer(cfg = cfg,
                       dataset = dataset,
-                      #inv_train = invTrans,
+                     # inv_train = invTrans,
                       arg = arg)
     Implementer.run(test_number=10)
 def train(arg,cfg):

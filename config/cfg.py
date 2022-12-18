@@ -21,10 +21,10 @@ _C.DATASET.LABELROOT = './data/train/train_GT_keypoints.json'      # the path of
 _C.DATASET.PREPROCESS = 'resize' #resize #看是要padding  勸你不要用padding
 _C.DATASET.PADDINGSIZE = [720 , 720]
 _C.DATASET.IMGSIZE = [640,640]
-
+_C.DATASET.GRAYSCALE = True
 #pretrain
 #test 或training的時候的pretrain weight
-_C.PRETRAIN = "./weights/model_ep50_bs12.pth"#"./weights/20221214_5_15_resnet34/model_ep20_bs8.pth" #"./weights/20221212_14_16_resnet34/model_ep1_bs4.pth"
+_C.PRETRAIN = "./weights/model_ep50_bs12 _normal.pth"#"./weights/model_ep50_bs12 _normal.pth
 # train
 _C.TRAIN = CN(new_allowed=True)
 _C.TRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)
@@ -33,6 +33,7 @@ _C.TRAIN.EPOCH = 2
 _C.TRAIN.OPTIM = "adam" #或 SGD 或 Adagrad
 _C.TRAIN.LOSS = "WeightsMse"
 _C.TRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
+
 #self-supervised
 _C.SUPTRAIN = CN(new_allowed=True)
 _C.SUPTRAIN.LR0 = 0.0001  # initial learning rate (SGD=1E-2, Adam=1E-3)

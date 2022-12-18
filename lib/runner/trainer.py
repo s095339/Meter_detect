@@ -10,9 +10,12 @@ from lib.core.loss import RaidusVarLoss # for unsupervised learning
 from lib.core.acc import angle_calculate
 #------
 from tqdm import tqdm
+import os,time
 #------
 from .logger import logger
 #======
+
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 #爽拉我就是要加這個鬼
@@ -70,7 +73,6 @@ class trainer:
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
         #--------------------------------------------------------
     def save_model(self):
-        import os,time
         result = time.localtime()
         dirname = f"{result.tm_year}{result.tm_mon}{result.tm_mday}_{result.tm_hour}_{result.tm_min}_{self.cfg.MODEL.BACKBONE}"
         
@@ -119,8 +121,13 @@ class trainer:
         for ep in range(self.ep):
             print("epoch = ",ep)
             self.train_loop(ep)
-            if self.val:
-                self.validate()
+            #儲存每一個ep的weights------
+            dirname = f"model_ep{ep}"
+            savedirpth = os.path.join(self.logger.dirpath,dirname)
+            os.mkdir(savedirpth)
+            savepth = os.path.join(savedirpth,f"model_ep{ep}")
+            torch.save(self.model.state_dict(), savepth)
+            #--------------------------
         self.logger.export_loss_plot()
         self.save_model()
 

@@ -69,8 +69,9 @@ class logger:
         plt.title("loss_log")
         plt.xlabel("epoch")
         plt.ylabel("loss")
-        plt.show()
         plt.savefig(os.path.join(self.dirpath,"losslog.png"))
+        plt.show()
+        
         
 
 
