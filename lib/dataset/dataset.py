@@ -34,7 +34,7 @@ class MeterDataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
         #灰階----------------------
-        self.gray = self.cfg.DATASET.GRAYSCALE = True
+        self.gray = self.cfg.DATASET.GRAYSCALE 
         print("Len of data = ",len(self))
 
     def read_img_list(self):
@@ -88,6 +88,7 @@ class testDataset(Dataset):
             self.imgsize = cfg.TEST.IMGSIZE
         self.preprocess = eval(f"{cfg.TEST.PREPROCESS}")
         self.transform = transform
+        self.gray = self.cfg.DATASET.GRAYSCALE
         print("Len of data = ",len(self))
 
     def __len__(self):
@@ -95,7 +96,10 @@ class testDataset(Dataset):
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_list[idx])
-        original_img = cv2.imread(img_path)
+        if self.gray:
+            original_img = cv2.imread(img_path,cv2.IMREAD_GRAYSCALE)
+        else:
+            original_img = cv2.imread(img_path)
         image = self.preprocess(original_img,self.imgsize)
         if self.transform:
             image = self.transform(image)
