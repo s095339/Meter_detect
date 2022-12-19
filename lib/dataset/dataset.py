@@ -33,6 +33,8 @@ class MeterDataset(Dataset):
         self.preprocess = eval(f"{cfg.DATASET.PREPROCESS}")
         self.transform = transform
         self.target_transform = target_transform
+        #灰階----------------------
+        self.gray = self.cfg.DATASET.GRAYSCALE = True
         print("Len of data = ",len(self))
 
     def read_img_list(self):
@@ -45,14 +47,17 @@ class MeterDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_list[idx]["filename"])
         label_ID = self.img_list[idx]["id"]
-        original_img = cv2.imread(img_path)
-        
+
+        if self.gray:
+            original_img = cv2.imread(img_path,cv2.IMREAD_GRAYSCALE)
+        else:
+            original_img = cv2.imread(img_path)
         #print(original_img.shape)
         
 
         label = np.array( self.label_list[label_ID]['keypoints'] )
         #print(label)
-
+        
         image = self.preprocess(original_img,self.imgsize)
         if self.preprocess == resize:
             label = label_fit(original_img,image,label)
