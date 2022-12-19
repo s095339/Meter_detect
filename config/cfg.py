@@ -10,7 +10,7 @@ _C.GPUS = (0,1)
 
 # common params for NETWORK
 _C.MODEL = CN(new_allowed=True)
-_C.MODEL.BACKBONE = 'resnet34'  # resnet隨便你選
+_C.MODEL.BACKBONE = 'ResNet34_GRAY'  # resnet隨便你選
 
 
 
@@ -24,7 +24,7 @@ _C.DATASET.IMGSIZE = [640,640]
 _C.DATASET.GRAYSCALE = True
 #pretrain
 #test 或training的時候的pretrain weight
-_C.PRETRAIN = "./weights/model_ep50_bs12 _normal.pth"#"./weights/model_ep50_bs12 _normal.pth
+_C.PRETRAIN = "" #"./weights/model_ep50_bs12 _normal.pth"#"./weights/model_ep50_bs12 _normal.pth
 # train
 _C.TRAIN = CN(new_allowed=True)
 _C.TRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)

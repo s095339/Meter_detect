@@ -100,7 +100,7 @@ class trainer:
             # Compute prediction and loss
             X = X.to(device).float()
             y = y.to(device).float()
-            
+            #print("------------")
             pred = self.model(X)
             loss = self.loss_fn(pred, y)
 

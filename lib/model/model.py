@@ -4,7 +4,7 @@ import torch.functional as F
 
 
 from torchvision.models import *
-
+from .backbone import ResNet34_GRAY
 class decoder(nn.Module):
     def __init__(self, cfg, arg = None):
         super(decoder, self).__init__()

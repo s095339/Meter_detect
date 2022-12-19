@@ -17,6 +17,7 @@ class MeterDataset(Dataset):
         """
         訓練用的dataset
         """
+        self.cfg = cfg
         #read cfg-------------------
         label_file = cfg.DATASET.LABELROOT
         img_dir = cfg.DATASET.DATAROOT
@@ -76,6 +77,7 @@ class testDataset(Dataset):
         測試dataset
         """
         #read cfg-------------------
+        self.cfg = cfg
         img_dir = cfg.TEST.DATAROOT
         preprocess = cfg.TEST.PREPROCESS
         #---------------------------
