@@ -14,7 +14,7 @@ def dist(p0,p1):
     return dist
 def visual(img,key_points,isvisual = False):
     """
-    將key points秀在圖片上
+    將key points貼在圖片上並輸出
     """
     image = img.copy()
     p = [(0,0),(0,0),(0,0),(0,0)]
@@ -56,3 +56,9 @@ def meterlike(img,key_points,isvisual = False):
     if isvisual:
         img_show(image)
     return
+
+def ShowGrayImgFromTensor(img,label):
+    img = img.cpu().detach().squeeze().numpy()
+    label = label.cpu().detach().squeeze().numpy()
+    visual(img,label,isvisual = True)
+

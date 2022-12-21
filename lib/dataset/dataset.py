@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import json
 
 from .preprocessing import padding,resize,label_fit
+from lib.dataset.data_aug import rotate,shift,noise,mirror_flip,donothing
 import numpy as np
 import cv2
 
@@ -53,16 +54,26 @@ class MeterDataset(Dataset):
             original_img = cv2.imread(img_path,cv2.IMREAD_GRAYSCALE)
         else:
             original_img = cv2.imread(img_path)
-        #print(original_img.shape)
-        
-
         label = np.array( self.label_list[label_ID]['keypoints'] )
-        #print(label)
-        
+        #print(original_img.shape)
         image = self.preprocess(original_img,self.imgsize)
         if self.preprocess == resize:
             label = label_fit(original_img,image,label)
+        #data augmentation------------------------------
+        if self.cfg.DATAAUG.ENABLE:
+            ratio = int(self.cfg.DATAAUG.DATARATIO*10)
+            ratio_list = [i<ratio for i in range(10)]
+            random.shuffle(ratio_list)
+        
+            if ratio_list[0]:#做
+                auglist = self.cfg.DATAAUG.TYPE
+                random.shuffle(auglist)
+                augmentation = eval(f"{auglist[0]}")
+            else:
+                augmentation = donothing
             
+            image,label = augmentation(image.copy(),label)
+        #-----------------------------------------------
         if self.transform:
             image = self.transform(image)
         if self.target_transform:

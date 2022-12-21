@@ -14,7 +14,7 @@ import os,time
 #------
 from .logger import logger
 #======
-
+from lib.util.visualization import ShowGrayImgFromTensor
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -98,6 +98,8 @@ class trainer:
         self.model.train()
         for batch, (X, y) in enumerate(self.trainloader):
             # Compute prediction and loss
+            #for i in range(4):
+            #    ShowGrayImgFromTensor(X[i],y[i])
             X = X.to(device).float()
             y = y.to(device).float()
             #print("------------")
@@ -121,12 +123,13 @@ class trainer:
         for ep in range(self.ep):
             print("epoch = ",ep)
             self.train_loop(ep)
-            #儲存每一個ep的weights------
-            dirname = f"model_ep{ep}"
-            savedirpth = os.path.join(self.logger.dirpath,dirname)
-            os.mkdir(savedirpth)
-            savepth = os.path.join(savedirpth,f"model_ep{ep}")
-            torch.save(self.model.state_dict(), savepth)
+            #儲存每5個ep的weights------
+            if  ep %5 ==1:
+                dirname = f"model_ep{ep}"
+                savedirpth = os.path.join(self.logger.dirpath,dirname)
+                os.mkdir(savedirpth)
+                savepth = os.path.join(savedirpth,f"model_ep{ep}")
+                torch.save(self.model.state_dict(), savepth)
             #--------------------------
         self.logger.export_loss_plot()
         self.save_model()

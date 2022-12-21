@@ -58,12 +58,18 @@ def implement(arg,cfg):
     """
     transform = transforms.Compose([
                     transforms.ToTensor(), 
-                    transforms.Normalize([0.5], [0.5])]
-                    )
+                    #transforms.Normalize([0.5], [0.5])
+                    ])
+    """
     invTrans = transforms.Compose([ transforms.Normalize(mean = [ 0., 0., 0. ],
                                                      std = [ 1/0.229, 1/0.224, 1/0.225 ]),
                                     transforms.Normalize(mean = [ -0.485, -0.456, -0.406 ],
                                                      std = [ 1., 1., 1. ]),
+                                 ])
+    """
+    invTrans = transforms.Compose([ 
+                                    transforms.Normalize(mean = [ -0.5, -0.5],
+                                                     std = [ 1., 1.]),
                                  ])
     target_transform = torch.tensor
     if arg.impleset == "test" or "":
@@ -90,8 +96,8 @@ def train(arg,cfg):
 
     transform = transforms.Compose([
                     transforms.ToTensor(), 
-                    transforms.Normalize([0.5], [0.5])]
-                    )
+                    #transforms.Normalize([0.5], [0.5])
+                    ])
     target_transform = torch.tensor
     dataset = MeterDataset(cfg = cfg,
                             transform = transform,

@@ -30,6 +30,4 @@ def padding(img,pad_size, mode = "ru"):
     if mode == "mid":
         pass
 #----------------------------------------------
-def img_rotate(img,label):
-    pass
 

@@ -22,9 +22,15 @@ _C.DATASET.PREPROCESS = 'resize' #resize #看是要padding  勸你不要用paddi
 _C.DATASET.PADDINGSIZE = [720 , 720]
 _C.DATASET.IMGSIZE = [640,640]
 _C.DATASET.GRAYSCALE = True
+
+_C.DATAAUG = CN(new_allowed=True)
+_C.DATAAUG.ENABLE = True
+_C.DATAAUG.TYPE = ["rotate","shift"]
+_C.DATAAUG.DATARATIO = 0.5 #0.1~1.0 這個數字代表著一次的ep裡面幾成的data要做aug
+_C.DATAAUG.AUGRATIO = []
 #pretrain
 #test 或training的時候的pretrain weight
-_C.PRETRAIN = "" #"./weights/model_ep50_bs12 _normal.pth"#"./weights/model_ep50_bs12 _normal.pth
+_C.PRETRAIN = "./weights/model_ep50_bs6_gray.pth" #"./weights/model_ep50_bs12 _normal.pth"#"./weights/model_ep50_bs12 _normal.pth
 # train
 _C.TRAIN = CN(new_allowed=True)
 _C.TRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)

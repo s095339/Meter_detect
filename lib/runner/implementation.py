@@ -48,7 +48,10 @@ class implementer:
         from lib.util.visualization import meterlike
         if self.inv_transform:
             X = self.inv_transform(X)
-        X  = X.cpu().detach().numpy().squeeze().transpose(1,2,0)
+        try:
+            X  = X.cpu().detach().numpy().squeeze().transpose(1,2,0)
+        except:
+            X  = X.cpu().detach().numpy().squeeze()
         print(X.shape)
         pred  = pred.cpu().detach().numpy().squeeze()
         meterlike(X,pred,isvisual = True)
