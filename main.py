@@ -96,7 +96,7 @@ def train(arg,cfg):
 
     transform = transforms.Compose([
                     transforms.ToTensor(), 
-                    #transforms.Normalize([0.5], [0.5])
+                    transforms.Normalize([0.5], [0.5])
                     ])
     target_transform = torch.tensor
     dataset = MeterDataset(cfg = cfg,
