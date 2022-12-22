@@ -10,8 +10,8 @@ import math
 """
 
 def rotate(src_img,key_points):
-    pivot_point = [320,320]
-    shape_img = [640,640]
+    pivot_point = (int(src_img.shape[0]/2),int(src_img.shape[1]/2))
+    shape_img = src_img.shape[0:2]
     #angle:+-pi
     angle_of_rotation = random.random()*2*np.pi-np.pi
     #1.create rotation matrix with numpy array
@@ -64,7 +64,7 @@ def rotate(src_img,key_points):
 def shift(img,label):
     """
     將圖片做上下左右隨機方向隨機大小平移
-    平移量大概50~150吧?
+    平移量大概25~75吧?
     """ 
     
     #隨機產生方向跟位移量
@@ -73,8 +73,8 @@ def shift(img,label):
     
     choose = [(1,1),(0,1),(1,0)]
     c = choose[int(random.random()*100)%3]
-    dx = int((np.random.random()*100+50)*x_direction)*c[0]
-    dy = int((np.random.random()*100+50)*y_direction)*c[1]
+    dx = int((np.random.random()*50+25)*x_direction)*c[0]
+    dy = int((np.random.random()*50+25)*y_direction)*c[1]
     
     X = np.roll(img, dy, axis=0)
     X = np.roll(X, dx, axis=1)

@@ -4,7 +4,8 @@ import torch.functional as F
 
 
 from torchvision.models import *
-from .backbone import ResNet34_GRAY
+from .backbone import ResNet34_GRAY,ResidualBlock
+
 class decoder(nn.Module):
     def __init__(self, cfg, arg = None):
         super(decoder, self).__init__()
@@ -29,6 +30,7 @@ class decoder(nn.Module):
 class MAJIYABAKUNet(nn.Module):
     def __init__(self, cfg, arg = None):
         super(MAJIYABAKUNet, self).__init__()
+        self.init_conv = ResidualBlock(1,3)
         #---------------------
         self.arg = arg
         self.cfg = cfg
@@ -38,6 +40,9 @@ class MAJIYABAKUNet(nn.Module):
         #print(type(self.backbone))
 
     def forward(self,x):
+        #print(x.shape)
+        x = self.init_conv(x)
+        #print(x.shape)
         x = self.backbone(x)
         x = self.decoder(x)
         return x

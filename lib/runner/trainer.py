@@ -32,14 +32,22 @@ class bcolors:
 
 
 class trainer:
-    def __init__(self,cfg,trainset,valset = None,arg = None):
+    def __init__(self,cfg,trainset,supset = None,valset = None,arg = None):
         #------
         self.cfg = cfg
         self.arg = arg
-        #------
+        #supervised learning------
         self.lr = cfg.TRAIN.LR0
         self.bs = cfg.TRAIN.BS
         self.ep = cfg.TRAIN.EPOCH
+        #selfsupervised learning-------
+        self.supEN = cfg.SUPTRAIN.ENABLE
+        self.supcycle = cfg.SUPTRAIN.CYCLE
+        self.suplr = cfg.SUPTRAIN.LR0
+        self.supbs = cfg.SUPTRAIN.BS
+
+        #------------------------------
+        self.supset = supset
         self.trainloader = DataLoader(trainset, batch_size=self.bs, shuffle=True)
         self.val = False
         if valset != None:
@@ -62,6 +70,8 @@ class trainer:
         else:
             print("LOSS = ",self.cfg.TRAIN.LOSS)
             self.loss_fn = eval(self.cfg.TRAIN.LOSS)
+        print("supLOSS = ",self.cfg.SUPTRAIN.LOSS)
+        self.suploss_fn = eval(self.cfg.SUPTRAIN.LOSS)
         #optim--------------------------------------
         if self.cfg.TRAIN.OPTIM.lower() == "adam":
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
@@ -93,6 +103,27 @@ class trainer:
                 progress.update(1)
         mean_loss = total_loss/len(self.valloader)
         print(f"{bcolors.OKGREEN}validate mean loss = :{bcolors.WARNING}{mean_loss}{bcolors.ENDC}")
+    def sup_train(self,ep):
+        for batch, X in enumerate(self.supset):
+            # Compute prediction and loss
+            X = X.to(device).float()
+        
+            
+            pred = self.model(X)
+            loss = self.suploss_fn(pred)
+
+            # Backpropagation
+            self.optimizer.zero_grad()
+            #loss.backward()
+        
+
+            loss.backward(retain_graph=True)
+            self.optimizer.step()
+
+            if batch % 20 == 0:
+                loss, current = loss.item(), batch * len(X)
+                print(f"suploss: {loss:>7f}  [{current:>5d}]")
+        
     def train_loop(self,ep):
         size = len(self.trainloader.dataset)
         self.model.train()
@@ -122,8 +153,12 @@ class trainer:
         torch.autograd.set_detect_anomaly(True)
         for ep in range(self.ep):
             print("epoch = ",ep)
-            self.train_loop(ep)
             #儲存每5個ep的weights------
+            if self.supEN:
+                if ep % self.supcycle == self.supcycle-1:
+                    self.sup_train(ep)
+                    
+            self.train_loop(ep)
             if  ep %5 ==1:
                 dirname = f"model_ep{ep}"
                 savedirpth = os.path.join(self.logger.dirpath,dirname)

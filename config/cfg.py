@@ -10,7 +10,7 @@ _C.GPUS = (0,1)
 
 # common params for NETWORK
 _C.MODEL = CN(new_allowed=True)
-_C.MODEL.BACKBONE = 'ResNet34_GRAY'  # resnet隨便你選
+_C.MODEL.BACKBONE = 'resnet34'  # resnet隨便你選
 
 
 
@@ -27,14 +27,14 @@ _C.DATAAUG = CN(new_allowed=True)
 _C.DATAAUG.ENABLE = True
 _C.DATAAUG.TYPE = ["rotate","shift"]
 _C.DATAAUG.DATARATIO = 0.5 #0.1~1.0 這個數字代表著一次的ep裡面幾成的data要做aug
-_C.DATAAUG.AUGRATIO = []
+_C.DATAAUG.AUGRATIO = [1,4] #一成的旋轉，四成的
 #pretrain
 #test 或training的時候的pretrain weight
-_C.PRETRAIN = "./weights/model_ep50_bs6_gray.pth" #"./weights/model_ep50_bs12 _normal.pth"#"./weights/model_ep50_bs12 _normal.pth
+_C.PRETRAIN = ""#"./weights/model_ep11" #"./weights/model_ep50_bs12 _normal.pth"#"./weights/model_ep50_bs12 _normal.pth
 # train
 _C.TRAIN = CN(new_allowed=True)
 _C.TRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)
-_C.TRAIN.BS = 4
+_C.TRAIN.BS = 8
 _C.TRAIN.EPOCH = 2
 _C.TRAIN.OPTIM = "adam" #或 SGD 或 Adagrad
 _C.TRAIN.LOSS = "WeightsMse"
@@ -42,6 +42,8 @@ _C.TRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
 
 #self-supervised
 _C.SUPTRAIN = CN(new_allowed=True)
+_C.SUPTRAIN.ENABLE = True
+_C.SUPTRAIN.CYCLE = 3
 _C.SUPTRAIN.LR0 = 0.0001  # initial learning rate (SGD=1E-2, Adam=1E-3)
 _C.SUPTRAIN.BS = 8 #必須是48的因數。
 _C.SUPTRAIN.EPOCH = 2

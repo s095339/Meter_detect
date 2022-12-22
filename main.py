@@ -4,7 +4,7 @@ from lib.dataset.dataset import testDataset,MeterDataset,SupportDatset
 from torch.utils.data import random_split
 from torchvision import transforms
 import torch
-
+from lib.runner.trainer import trainer,sup_trainer
 from config.cfg import _C as cfg
 
 #---
@@ -36,12 +36,7 @@ def train_sup(arg,cfg):
         cfg = cfg,
         transform = transform
     )
-    """
-    data = next(iter(dataset))
-    print(data.shape)
-    img = data[3].detach().numpy().transpose(1,2,0)
-    img_show(img)
-     """
+    
     from lib.runner.trainer import sup_trainer
     trainer = sup_trainer(
         cfg = cfg,
@@ -89,14 +84,11 @@ def implement(arg,cfg):
     Implementer.run(test_number=10)
 def train(arg,cfg):
     #prepare data-----------------
-    from lib.dataset.dataset import MeterDataset
-    
-    from torch.utils.data import random_split
-    from torchvision import transforms
+
 
     transform = transforms.Compose([
                     transforms.ToTensor(), 
-                    transforms.Normalize([0.5], [0.5])
+                    #transforms.Normalize([0.5], [0.5])
                     ])
     target_transform = torch.tensor
     dataset = MeterDataset(cfg = cfg,
@@ -106,26 +98,18 @@ def train(arg,cfg):
     trainset = dataset
     #trainset,valset = random_split(dataset, [9000,1000])
     #show img
-    """
-    from lib.util.visualization import visual,meterlike
-    image,label  = trainset[9999]
-    img = image.detach().numpy().transpose(1,2,0)
-    label = label.detach().numpy()
-    #點點：最小值，最大值，中央值，指針值。
-    print(label)
-    print(img.shape)
-    visual(img,label,isvisual = True)
-    #meterlike(img,label,isvisual = True)
+    supset =  SupportDatset(
+        cfg = cfg,
+        transform = transform
+    )
     
 
-    from lib.core.acc import angle_calculate
-    print(angle_calculate(label,mode = "degree"))
 
-    """
     #----------------------------------
     from lib.runner.trainer import trainer
     Trainer = trainer(cfg = cfg,
                       trainset = trainset,
+                      supset = supset,
                       #valset = valset,
                       arg = arg)
     Trainer.run()

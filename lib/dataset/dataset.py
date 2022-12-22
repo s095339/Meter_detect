@@ -55,10 +55,6 @@ class MeterDataset(Dataset):
         else:
             original_img = cv2.imread(img_path)
         label = np.array( self.label_list[label_ID]['keypoints'] )
-        #print(original_img.shape)
-        image = self.preprocess(original_img,self.imgsize)
-        if self.preprocess == resize:
-            label = label_fit(original_img,image,label)
         #data augmentation------------------------------
         if self.cfg.DATAAUG.ENABLE:
             ratio = int(self.cfg.DATAAUG.DATARATIO*10)
@@ -67,13 +63,25 @@ class MeterDataset(Dataset):
         
             if ratio_list[0]:#做
                 auglist = self.cfg.DATAAUG.TYPE
-                random.shuffle(auglist)
-                augmentation = eval(f"{auglist[0]}")
+                augratio = self.cfg.DATAAUG.AUGRATIO
+                l = []
+                index = 0
+                for i in augratio:
+                    for j in range(i):
+                        l.append(index)
+                    index += 1
+                random.shuffle(l)
+                augmentation = eval(f"{auglist[l[0]]}")
             else:
                 augmentation = donothing
             
-            image,label = augmentation(image.copy(),label)
+            original_img,label = augmentation(original_img.copy(),label)
         #-----------------------------------------------
+        #把圖片都放大到640 640
+        image = self.preprocess(original_img,self.imgsize)
+        if self.preprocess == resize:
+            label = label_fit(original_img,image,label)
+        
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
@@ -167,7 +175,7 @@ class SupportDatset(Dataset):
         #print(self.batch_imglist[50])
         #print(len(self.batch_imglist[50]))
         #split data--------------------------------------------
-        
+        self.gray = self.cfg.DATASET.GRAYSCALE
     def __len__(self):
         return 14
 
@@ -183,7 +191,12 @@ class SupportDatset(Dataset):
         imgstack = []
         
         for imgpth in imglist:
-            original_img = cv2.imread(imgpth)
+            if self.gray:
+                original_img = cv2.imread(imgpth,cv2.IMREAD_GRAYSCALE)
+            else:
+                original_img = cv2.imread(imgpth)
+
+            #original_img = cv2.imread(imgpth)
             image = self.preprocess(original_img,self.imgsize)
             img = self.transform(image).unsqueeze(dim = 0)
             imgstack.append(img)
