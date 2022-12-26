@@ -6,8 +6,8 @@ from torchvision.transforms import ToTensor
 import matplotlib.pyplot as plt
 import json
 
-from .preprocessing import padding,resize,label_fit
-from lib.dataset.data_aug import rotate,shift,noise,mirror_flip,donothing
+from .preprocessing import padding,resize,label_fit,KeepSizeResize,augresize
+from lib.dataset.data_aug import donothing,imrotate,augshift
 import numpy as np
 import cv2
 
@@ -28,11 +28,11 @@ class MeterDataset(Dataset):
         self.img_dir = img_dir
         self.img_list,self.label_list = self.read_img_list()
         #print(_C.LOSS)
-        if preprocess.lower() == "padding":
-            self.imgsize = cfg.DATASET.PADDINGSIZE
-        else:
-            self.imgsize = cfg.DATASET.IMGSIZE
-        self.preprocess = eval(f"{cfg.DATASET.PREPROCESS}")
+        
+        self.imgsize = cfg.DATASET.IMGSIZE
+        self.preprocess = augresize
+
+        
         self.transform = transform
         self.target_transform = target_transform
         #灰階----------------------
@@ -55,6 +55,11 @@ class MeterDataset(Dataset):
         else:
             original_img = cv2.imread(img_path)
         label = np.array( self.label_list[label_ID]['keypoints'] )
+
+        #preprocessing
+        #把圖片都放大到480 480
+        image,label = self.preprocess(original_img,self.imgsize,label)
+        image,label = KeepSizeResize(image,label)
         #data augmentation------------------------------
         if self.cfg.DATAAUG.ENABLE:
             ratio = int(self.cfg.DATAAUG.DATARATIO*10)
@@ -75,12 +80,9 @@ class MeterDataset(Dataset):
             else:
                 augmentation = donothing
             
-            original_img,label = augmentation(original_img.copy(),label)
+            image,label = augmentation(image,label)
         #-----------------------------------------------
-        #把圖片都放大到640 640
-        image = self.preprocess(original_img,self.imgsize)
-        if self.preprocess == resize:
-            label = label_fit(original_img,image,label)
+        
         
         if self.transform:
             image = self.transform(image)
@@ -103,10 +105,8 @@ class testDataset(Dataset):
         self.img_dir = img_dir
         self.img_list = os.listdir(img_dir)
         #print(_C.LOSS)
-        if preprocess.lower() == "padding":
-            self.imgsize = cfg.TEST.PADDINGSIZE
-        else:
-            self.imgsize = cfg.TEST.IMGSIZE
+       
+        self.imgsize = cfg.TEST.IMGSIZE
         self.preprocess = eval(f"{cfg.TEST.PREPROCESS}")
         self.transform = transform
         self.gray = self.cfg.DATASET.GRAYSCALE

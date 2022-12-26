@@ -28,7 +28,10 @@ def visual(img,key_points,isvisual = False):
     #把點點畫上去
     #print(p)
     for i in range(4):
-        image = cv2.circle(image,p[i],radius=5,color = color[i], thickness=-1)
+        try:
+            image = cv2.circle(image,p[i],radius=5,color = color[i], thickness=-1)
+        except:
+            print(p)
     if isvisual:
         img_show(image)
 

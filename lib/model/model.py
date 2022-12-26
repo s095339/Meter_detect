@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.functional as F
 
 
-from torchvision.models import *
+import torchvision.models as models
 from .backbone import ResNet34_GRAY,ResidualBlock
 
 class decoder(nn.Module):
@@ -35,7 +35,7 @@ class MAJIYABAKUNet(nn.Module):
         self.arg = arg
         self.cfg = cfg
         #Layer----------------
-        self.backbone = eval(f"{self.cfg.MODEL.BACKBONE}()")
+        self.backbone = models.resnet34(pretrained = True)
         self.decoder = decoder(cfg,arg)
         #print(type(self.backbone))
 

@@ -129,8 +129,8 @@ class trainer:
         self.model.train()
         for batch, (X, y) in enumerate(self.trainloader):
             # Compute prediction and loss
-            #for i in range(4):
-            #    ShowGrayImgFromTensor(X[i],y[i])
+            for i in range(8):
+                ShowGrayImgFromTensor(X[i],y[i])
             X = X.to(device).float()
             y = y.to(device).float()
             #print("------------")
@@ -163,7 +163,7 @@ class trainer:
                 dirname = f"model_ep{ep}"
                 savedirpth = os.path.join(self.logger.dirpath,dirname)
                 os.mkdir(savedirpth)
-                savepth = os.path.join(savedirpth,f"model_ep{ep}")
+                savepth = os.path.join(savedirpth,f"model_ep{ep}.pth")
                 torch.save(self.model.state_dict(), savepth)
             #--------------------------
         self.logger.export_loss_plot()

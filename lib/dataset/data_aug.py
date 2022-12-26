@@ -3,6 +3,9 @@ import cv2
 from PIL import Image
 import random
 import math
+import imgaug as ia
+import imgaug.augmenters as iaa
+from imgaug.augmentables import Keypoint, KeypointsOnImage
 """
 1.旋轉、2.上下左右平移
 3.加上胡椒點雜訊
@@ -57,9 +60,7 @@ def rotate(src_img,key_points):
         i=i+1
         
 
-    return new_img,newlabel
-   
-   
+    return new_img,newlabel  
 #下面的功能都有夠簡單
 def shift(img,label):
     """
@@ -99,15 +100,119 @@ def shift(img,label):
         X[dy:, :] = 0
     return X,newlabel
 
-def noise(img,label):
-    "胡椒雜訊"
-
-    return img,label
-
-def mirror_flip(img,label):
-
-    return img,label
-
-
 def donothing(img,label):
+
     return img,label
+def cal_limit(image,key_points):
+    min_y_to_top = 1000
+    min_y_to_bottom = 1000
+    min_x_to_left = 1000
+    min_x_to_right = 1000
+    xlist = [0,2,4,6]
+    ylist = [1,3,5,7]
+    for x in xlist:
+        XtoLeft = key_points[x]-0 
+        XtoRight = image.shape[1]-key_points[x]
+        if XtoLeft < min_x_to_left:
+            min_x_to_left = XtoLeft
+        if XtoRight < min_x_to_right:
+            min_x_to_right = XtoRight
+    for y in ylist:
+        YtoTop = key_points[y]-0
+        Ytobottom = image.shape[0]-key_points[y]
+        if YtoTop < min_y_to_top:
+            min_y_to_top = min_y_to_top
+        if Ytobottom < min_y_to_bottom:
+            min_y_to_bottom = Ytobottom
+    limit_y = min(min_y_to_top,min_y_to_bottom)
+    limit_x = min(min_x_to_left,min_x_to_right)
+    return limit_x,limit_y
+
+def augshift(image,key_points):
+    limit_x,limit_y = cal_limit(image,key_points)
+    x_direction = math.pow(-1,round(random.random()))
+    y_direction = math.pow(-1,round(random.random()))
+    #print(key_points)
+    #print(limit_x,limit_y)
+    choose = [(1,1),(0,1),(1,0)]
+    c = choose[int(random.random()*100)%3]
+    dx = int((np.random.random()*limit_x-10)*x_direction)*c[0]
+    dy = int((np.random.random()*limit_y-10)*y_direction)*c[1]
+    kps = KeypointsOnImage([
+            Keypoint(x=key_points[0], y=key_points[1]),
+            Keypoint(x=key_points[2], y=key_points[3]),
+            Keypoint(x=key_points[4], y=key_points[5]),
+            Keypoint(x=key_points[6], y=key_points[7])
+        ], shape=image.shape)
+    seq = iaa.Sequential([
+        iaa.TranslateX(px=(0, dx)),
+        iaa.TranslateY(px=(0, dy))
+    ])
+    image_aug, kps_aug = seq(image=image, keypoints=kps)
+    #print(kps_aug[0].x)
+    newlabel = [0,0,0,0,0,0,0,0]
+    for i in range(0,8,2):
+        #print(i,end=",")
+        #print(i/2,end=",")
+        newlabel[i] = kps_aug[int(i/2)].x
+        newlabel[i+1] = kps_aug[int(i/2)].y
+    return image_aug,newlabel
+
+def KeepSizeResize(image,key_points):
+    
+    limit_x,limit_y = cal_limit(image,key_points)
+    
+    crop_limit = min(limit_x,limit_y)
+    crop_size = int(random.random()*(crop_limit-10))
+    kps = KeypointsOnImage([
+            Keypoint(x=key_points[0], y=key_points[1]),
+            Keypoint(x=key_points[2], y=key_points[3]),
+            Keypoint(x=key_points[4], y=key_points[5]),
+            Keypoint(x=key_points[6], y=key_points[7])
+        ], shape=image.shape)
+    aug = iaa.KeepSizeByResize(
+        iaa.Crop((crop_size,crop_size), keep_size=False)
+    )
+
+    image_aug, kps_aug = aug(image=image, keypoints=kps)
+    #print(kps_aug[0].x)
+    newlabel = [0,0,0,0,0,0,0,0]
+    for i in range(0,8,2):
+        #print(i,end=",")
+        #print(i/2,end=",")
+        newlabel[i] = kps_aug[int(i/2)].x
+        newlabel[i+1] = kps_aug[int(i/2)].y
+
+    return image_aug,newlabel
+def imrotate(image,key_points):
+    ia.seed(1)
+    angle_of_rotation = (random.random()*2-1)*180
+
+    kps = KeypointsOnImage([
+            Keypoint(x=key_points[0], y=key_points[1]),
+            Keypoint(x=key_points[2], y=key_points[3]),
+            Keypoint(x=key_points[4], y=key_points[5]),
+            Keypoint(x=key_points[6], y=key_points[7])
+        ], shape=image.shape)
+
+    seq = iaa.Sequential([
+     # change brightness, doesn't affect keypoints
+        iaa.Affine(
+            rotate=angle_of_rotation,
+            scale=(1, 1)
+        ) # rotate by exactly 10deg and scale to 50-70%, affects keypoints
+    ])
+
+    image_aug, kps_aug = seq(image=image, keypoints=kps)
+    #print(kps_aug[0].x)
+    newlabel = [0,0,0,0,0,0,0,0]
+    for i in range(0,8,2):
+        #print(i,end=",")
+        #print(i/2,end=",")
+        newlabel[i] = kps_aug[int(i/2)].x
+        newlabel[i+1] = kps_aug[int(i/2)].y
+
+# image with keypoints before/after augmentation (shown below)
+    #print(image_aug.shape)
+
+    return image_aug,newlabel

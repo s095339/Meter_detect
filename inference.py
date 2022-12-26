@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from lib.dataset.data_aug import rotate,shift,noise,mirror_flip
+from lib.dataset.data_aug import rotate,shift,imrotate
 from lib.util.visualization import visual
 
 def change_angle_to_radius_unit(angle):
@@ -9,7 +9,7 @@ def change_angle_to_radius_unit(angle):
     return angle_radius
 
 if __name__ == '__main__':
-    label = np.array([
+    label_ = np.array([
             148.78973388671875,
             256.58038330078125,
             237.25320434570312,
@@ -19,10 +19,28 @@ if __name__ == '__main__':
             121.33609008789062,
             139.2275390625
         ])
-    img = cv2.imread("./data/train/train_img/scale_52_meas_0.png")
+    im_ = cv2.imread("./data/train/train_img/scale_52_meas_0.png")
     
-    from lib.dataset.preprocessing import resize,label_fit
+    #im,label = imrotate(img,label)
+    from lib.dataset.preprocessing import augresize
+    from lib.dataset.data_aug import KeepSizeResize,augshift
 
+     
+    #im,label = imrotate(img,label)
+    #from lib.dataset.preprocessing import resize,label_fit
+    #resized_img = resize(im,[640,640])
+    #newlabel = label_fit(im,resized_img,label)
+    visual(im_,label_,isvisual = True)
+    for i in range(30):
+        #im,label = augshift(im_,label_)
+        
+        im,label = augresize(im_,[480,480],label_)
+        im,label = KeepSizeResize(im,label)
+        im,label = imrotate(im,label)
+        visual(im,label,isvisual = True)
+        print(im.shape)
+    #visual(im,label,isvisual = True)
+    """
     resized_img = resize(img,[640,640])
     newlabel = label_fit(img,resized_img,label)
     print(newlabel)
@@ -34,7 +52,7 @@ if __name__ == '__main__':
     img_,label_ =  rotate(resized_img.copy(),newlabel)
     print(label_)
     visual(img_,label_,isvisual = True)
-    """
+    
 
     img_,label_  = shift(resized_img.copy(),newlabel)
     print(label_)
