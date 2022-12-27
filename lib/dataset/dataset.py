@@ -121,7 +121,7 @@ class testDataset(Dataset):
             original_img = cv2.imread(img_path,cv2.IMREAD_GRAYSCALE)
         else:
             original_img = cv2.imread(img_path)
-        image = self.preprocess(original_img,self.imgsize)
+        image,_ = self.preprocess(original_img,self.imgsize,None)
         if self.transform:
             image = self.transform(image)
         return image

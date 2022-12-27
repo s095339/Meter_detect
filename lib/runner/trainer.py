@@ -129,8 +129,8 @@ class trainer:
         self.model.train()
         for batch, (X, y) in enumerate(self.trainloader):
             # Compute prediction and loss
-            for i in range(8):
-                ShowGrayImgFromTensor(X[i],y[i])
+            #for i in range(8):
+            #    ShowGrayImgFromTensor(X[i],y[i])
             X = X.to(device).float()
             y = y.to(device).float()
             #print("------------")

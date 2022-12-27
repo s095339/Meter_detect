@@ -3,7 +3,7 @@
 import torch
 import torch.nn as nn
 import torch.functional as F
-
+from config.cfg import _C as cfg
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 #calculate alg---------------------------------------
 #LOSS------------------------------------------------
@@ -17,10 +17,7 @@ def WeightsMse(pred,label):
     pred = [a_pred,b_pred,c_pred,d_pred]
     loss = w0||a-a_pred||+w1||b-b_pred||+w2||c-c_pred||+w3||d-d_pred||
     """
-    point_weights = [1.,1., #最小值
-                    1.,1.,  #最大值
-                    1.5,1.5,  #中心點
-                    1.,1.]  #指針值
+    point_weights = cfg.TRAIN.POINT_WEIGHTS
     loss_fn = nn.MSELoss()
     weight_stack = []
     for i in range(pred.shape[0]):#bs

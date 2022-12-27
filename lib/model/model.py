@@ -35,8 +35,11 @@ class MAJIYABAKUNet(nn.Module):
         self.arg = arg
         self.cfg = cfg
         #Layer----------------
-        self.backbone = models.resnet34(pretrained = True)
-        self.decoder = decoder(cfg,arg)
+        self.backbone = models.resnet34(pretrained=True, progress=True)
+        in_features = self.backbone.fc.in_features
+        num_class = 8
+        self.backbone.fc = nn.Linear(in_features, num_class) 
+                
         #print(type(self.backbone))
 
     def forward(self,x):
@@ -44,5 +47,5 @@ class MAJIYABAKUNet(nn.Module):
         x = self.init_conv(x)
         #print(x.shape)
         x = self.backbone(x)
-        x = self.decoder(x)
+       
         return x
