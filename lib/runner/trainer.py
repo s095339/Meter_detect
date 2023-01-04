@@ -154,11 +154,12 @@ class trainer:
         for ep in range(self.ep):
             print("epoch = ",ep)
             #儲存每5個ep的weights------
+            self.train_loop(ep)
             if self.supEN:
                 if ep % self.supcycle == self.supcycle-1:
                     self.sup_train(ep)
                     
-            self.train_loop(ep)
+            
             if  ep %5 ==1:
                 dirname = f"model_ep{ep}"
                 savedirpth = os.path.join(self.logger.dirpath,dirname)
@@ -202,14 +203,9 @@ class sup_trainer:
         self.loss_fn = eval(self.cfg.SUPTRAIN.LOSS)
 
         #optim--------------------------------------
-        if self.cfg.SUPTRAIN.OPTIM.lower() == "adam":
-            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
-        elif self.cfg.SUPTRAIN.OPTIM.lower() == "sgd":
-            self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
-        elif self.cfg.SUPTRAIN.OPTIM.lower() == "adagrad":
-            self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=self.lr)
-        else:
-            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
+        
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
+        
         #--------------------------------------------------------
     def save_model(self):
         import os,time

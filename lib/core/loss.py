@@ -77,11 +77,12 @@ def RaidusVarLoss(pred):
 
     #rerrange
     batchangle = torch.cat(anglelist,0)
+    #print(batchangle)
     batchminmaxangle = torch.cat(minmaxanglelist,0)
     #print(batchangle)
     #print(batchminmaxangle)
 
     #計算角度的variance
-    LOSS= torch.var(batchangle)+torch.var(batchminmaxangle)
+    LOSS= torch.var(batchangle)+0.5*torch.var(batchminmaxangle)
     #print("LOSS = ",LOSS)
     return LOSS

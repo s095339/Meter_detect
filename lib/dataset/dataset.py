@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import json
 
 from .preprocessing import padding,resize,label_fit,KeepSizeResize,augresize
-from lib.dataset.data_aug import donothing,imrotate,augshift
+from lib.dataset.data_aug import donothing,imrotate,augshift,mixaug
 import numpy as np
 import cv2
 
@@ -67,7 +67,9 @@ class MeterDataset(Dataset):
             random.shuffle(ratio_list)
         
             if ratio_list[0]:#做
+                print("------aug------")
                 auglist = self.cfg.DATAAUG.TYPE
+                
                 augratio = self.cfg.DATAAUG.AUGRATIO
                 l = []
                 index = 0
@@ -76,6 +78,7 @@ class MeterDataset(Dataset):
                         l.append(index)
                     index += 1
                 random.shuffle(l)
+                print(f"augtype = {auglist[l[0]]}")
                 augmentation = eval(f"{auglist[l[0]]}")
             else:
                 augmentation = donothing
@@ -118,10 +121,12 @@ class testDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_list[idx])
         if self.gray:
+           
             original_img = cv2.imread(img_path,cv2.IMREAD_GRAYSCALE)
+            
         else:
             original_img = cv2.imread(img_path)
-        image,_ = self.preprocess(original_img,self.imgsize,None)
+        image,_ = self.preprocess(original_img,self.imgsize,[0,0,0,0,0,0,0,0])
         if self.transform:
             image = self.transform(image)
         return image
@@ -142,8 +147,9 @@ class SupportDatset(Dataset):
         self.cfg = cfg
         self.dataroot = cfg.SUPTRAIN.DATAROOT
         self.bs = cfg.SUPTRAIN.BS
-        self.preprocess = resize
+        self.preprocess = augresize
         self.imgsize = cfg.DATASET.IMGSIZE
+        self.gray = self.cfg.DATASET.GRAYSCALE 
         if 48 % self.bs !=0:
             raise ValueError("sup train bs必須可被8整除")
         
@@ -175,7 +181,7 @@ class SupportDatset(Dataset):
         #print(self.batch_imglist[50])
         #print(len(self.batch_imglist[50]))
         #split data--------------------------------------------
-        self.gray = self.cfg.DATASET.GRAYSCALE
+        
     def __len__(self):
         return 14
 
@@ -186,7 +192,8 @@ class SupportDatset(Dataset):
         """
         imglist = self.batch_imglist[idx]
         
-        
+        print(idx)
+        print(imglist)
         #print(imglist)
         imgstack = []
         
@@ -197,7 +204,7 @@ class SupportDatset(Dataset):
                 original_img = cv2.imread(imgpth)
 
             #original_img = cv2.imread(imgpth)
-            image = self.preprocess(original_img,self.imgsize)
+            image,_ = self.preprocess(original_img,self.imgsize,[0,0,0,0,0,0,0,0])
             img = self.transform(image).unsqueeze(dim = 0)
             imgstack.append(img)
             #print(img.shape)

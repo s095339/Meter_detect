@@ -3,7 +3,7 @@
 import cv2
 import math
 import numpy as np
-
+from lib.core.acc import angle_calculate
 def img_show(img):
     cv2.imshow("show",img)
     cv2.waitKey(0)
@@ -56,6 +56,10 @@ def meterlike(img,key_points,isvisual = False):
     image = cv2.arrowedLine(image,p[2],p[3],(0,0,255),thickness = 3)
     image = cv2.line(image,p[2],p[0],(0,255,0),thickness = 2)
     #麻煩死了
+    #標示角度
+    angle = angle_calculate(key_points,mode = "degree") 
+    font = cv2.FONT_HERSHEY_PLAIN
+    cv2.putText(image,str("{:.3f}°".format(angle)),(200,200), font, 2,(255,255,255),2)
     if isvisual:
         img_show(image)
     return

@@ -103,6 +103,7 @@ def shift(img,label):
 def donothing(img,label):
 
     return img,label
+
 def cal_limit(image,key_points):
     min_y_to_top = 1000
     min_y_to_bottom = 1000
@@ -136,8 +137,8 @@ def augshift(image,key_points):
     #print(limit_x,limit_y)
     choose = [(1,1),(0,1),(1,0)]
     c = choose[int(random.random()*100)%3]
-    dx = int((np.random.random()*limit_x-10)*x_direction)*c[0]
-    dy = int((np.random.random()*limit_y-10)*y_direction)*c[1]
+    dx = int((np.random.random()*limit_x-5)*x_direction)*c[0]
+    dy = int((np.random.random()*limit_y-5)*y_direction)*c[1]
     kps = KeypointsOnImage([
             Keypoint(x=key_points[0], y=key_points[1]),
             Keypoint(x=key_points[2], y=key_points[3]),
@@ -184,7 +185,9 @@ def KeepSizeResize(image,key_points):
         newlabel[i+1] = kps_aug[int(i/2)].y
 
     return image_aug,newlabel
+
 def imrotate(image,key_points):
+
     ia.seed(1)
     angle_of_rotation = (random.random()*2-1)*180
 
@@ -216,3 +219,8 @@ def imrotate(image,key_points):
     #print(image_aug.shape)
 
     return image_aug,newlabel
+
+def mixaug(image,key_points):
+    image,key_points = imrotate(image,key_points)
+    image,key_points = augshift(image,key_points)
+    return image,key_points

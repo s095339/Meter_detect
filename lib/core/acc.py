@@ -25,15 +25,15 @@ def angle_calculate(key_point,mode = "radians"):
     #print(p)
     #點點：最小值，最大值，中央值，指針值。
     a = dist(p[0],p[3])#a:最小值到指針值的直線距離
-    #print(a)
     b = dist(p[3],p[2])#b:指針到中心的直線距離
-    #print(b)
     c = dist(p[2],p[0])#c:中心到最小值的直線距離
-    #print(c)
     temp = (math.pow(b,2)+math.pow(c,2)-math.pow(a,2))
     temp = temp/(2*b*c)
-    #print(temp)
     angle = math.acos(temp)
+    
+
+
+
     if mode.lower() == "degree":
         angle = np.rad2deg(angle)
     

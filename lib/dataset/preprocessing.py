@@ -60,15 +60,15 @@ def cal_limit(image,key_points):
     return limit_x,limit_y
 
 def augresize(image,resize_size,key_points):
-    if len(key_points)==8:
-        kps = KeypointsOnImage([
-                Keypoint(x=key_points[0], y=key_points[1]),
-                Keypoint(x=key_points[2], y=key_points[3]),
-                Keypoint(x=key_points[4], y=key_points[5]),
-                Keypoint(x=key_points[6], y=key_points[7])
-            ], shape=image.shape)
-    else:
-        kps = KeypointsOnImage([Keypoint(x=0, y=0)], shape=image.shape)
+    
+    kps = KeypointsOnImage([
+            Keypoint(x=key_points[0], y=key_points[1]),
+            Keypoint(x=key_points[2], y=key_points[3]),
+            Keypoint(x=key_points[4], y=key_points[5]),
+            Keypoint(x=key_points[6], y=key_points[7])
+        ], shape=image.shape)
+    
+    
     seq = iaa.Sequential([
         iaa.Resize({"height": resize_size[0], "width": resize_size[1]})
     ])

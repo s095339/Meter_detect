@@ -76,12 +76,27 @@ def implement(arg,cfg):
                                 transform = transform,
                                 target_transform=torch.tensor
                                 )
-    from lib.runner.implementation import implementer
-    Implementer = implementer(cfg = cfg,
-                      dataset = dataset,
-                     # inv_train = invTrans,
-                      arg = arg)
-    Implementer.run(test_number=10)
+    else:
+        dataset = SupportDatset(cfg = cfg,
+                                transform = transform)
+    if arg.impleset == "test" or arg.impleset == "train":                          
+        from lib.runner.implementation import implementer
+        Implementer = implementer(cfg = cfg,
+                        dataset = dataset,
+                        # inv_train = invTrans,
+                        arg = arg)
+        Implementer.run(test_number=10)
+    else:
+        from lib.runner.implementation import sup_implementer
+        Implementer = sup_implementer(cfg = cfg,
+                        dataset = dataset,
+                        # inv_train = invTrans,
+                        arg = arg)
+        Implementer.run()
+
+
+
+
 def train(arg,cfg):
     #prepare data-----------------
 

@@ -36,6 +36,7 @@ class MAJIYABAKUNet(nn.Module):
         self.cfg = cfg
         #Layer----------------
         self.backbone = models.resnet34(pretrained=True, progress=True)
+        
         in_features = self.backbone.fc.in_features
         num_class = 8
         self.backbone.fc = nn.Linear(in_features, num_class) 
