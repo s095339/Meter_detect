@@ -50,8 +50,8 @@ _C.SUPTRAIN = CN(new_allowed=True)
 _C.SUPTRAIN.ENABLE = True
 _C.SUPTRAIN.CYCLE = 3#每train幾次跑一次sup資料
 _C.SUPTRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)
-_C.SUPTRAIN.BS = 16 #必須是48的因數。
-_C.SUPTRAIN.EPOCH = 6
+_C.SUPTRAIN.BS = 8 #必須是48的因數。
+_C.SUPTRAIN.EPOCH = 5
 _C.SUPTRAIN.OPTIM = "adam" #或 SGD 或 Adagrad
 _C.SUPTRAIN.LOSS = "RaidusVarLoss"
 _C.SUPTRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'

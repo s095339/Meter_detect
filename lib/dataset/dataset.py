@@ -67,7 +67,7 @@ class MeterDataset(Dataset):
             random.shuffle(ratio_list)
         
             if ratio_list[0]:#做
-                print("------aug------")
+                #print("------aug------")
                 auglist = self.cfg.DATAAUG.TYPE
                 
                 augratio = self.cfg.DATAAUG.AUGRATIO
@@ -78,7 +78,7 @@ class MeterDataset(Dataset):
                         l.append(index)
                     index += 1
                 random.shuffle(l)
-                print(f"augtype = {auglist[l[0]]}")
+                #print(f"augtype = {auglist[l[0]]}")
                 augmentation = eval(f"{auglist[l[0]]}")
             else:
                 augmentation = donothing
@@ -192,8 +192,8 @@ class SupportDatset(Dataset):
         """
         imglist = self.batch_imglist[idx]
         
-        print(idx)
-        print(imglist)
+        #print(idx)
+        #print(imglist)
         #print(imglist)
         imgstack = []
         

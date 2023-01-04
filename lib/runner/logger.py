@@ -48,7 +48,8 @@ class logger:
             self.logger.warning(f"[Supervised learning] epoch = {self.ep},batch = {self.bs},loss = {self.losstype},lr = {self.lr}")
         if self.mode.lower() =="suptrain":
             self.logger.warning(f"[Unsupervised Supportdata learning] epoch = {self.ep},batch = {self.bs},loss = {self.losstype},lr = {self.lr}")
-            
+    def log_writeline(self,text):
+        self.logger.info(text)
     def log_insert(self,ep,batch,loss):
         """
         訓練過程中記錄他的loss變化。並寫在log檔內。

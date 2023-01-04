@@ -45,7 +45,7 @@ class trainer:
         self.supcycle = cfg.SUPTRAIN.CYCLE
         self.suplr = cfg.SUPTRAIN.LR0
         self.supbs = cfg.SUPTRAIN.BS
-
+        self.supep = cfg.SUPTRAIN.EPOCH
         #------------------------------
         self.supset = supset
         self.trainloader = DataLoader(trainset, batch_size=self.bs, shuffle=True)
@@ -122,6 +122,7 @@ class trainer:
 
             if batch % 20 == 0:
                 loss, current = loss.item(), batch * len(X)
+                self.logger.log_writeline(f"suploss: {loss:>7f}  ")
                 print(f"suploss: {loss:>7f}  [{current:>5d}]")
         
     def train_loop(self,ep):
@@ -145,7 +146,7 @@ class trainer:
             loss.backward(retain_graph=True)
             self.optimizer.step()
 
-            if batch % 50 == 0:
+            if batch % 20 == 0:
                 loss, current = loss.item(), batch * len(X)
                 print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
                 self.logger.log_insert(ep = ep,batch = batch,loss = loss)
@@ -156,16 +157,17 @@ class trainer:
             #儲存每5個ep的weights------
             self.train_loop(ep)
             if self.supEN:
-                if ep % self.supcycle == self.supcycle-1:
-                    self.sup_train(ep)
-                    
-            
-            if  ep %5 ==1:
-                dirname = f"model_ep{ep}"
-                savedirpth = os.path.join(self.logger.dirpath,dirname)
-                os.mkdir(savedirpth)
-                savepth = os.path.join(savedirpth,f"model_ep{ep}.pth")
-                torch.save(self.model.state_dict(), savepth)
+                
+                if ep % self.supcycle == self.supcycle-1 or ep == self.ep-1:
+                    self.logger.log_writeline("suptrain--------")
+                    for i in range(self.supep):
+                        print(f"supEP {i}")
+                        self.sup_train(ep)
+                    dirname = f"model_ep{ep}"
+                    savedirpth = os.path.join(self.logger.dirpath,dirname)
+                    os.mkdir(savedirpth)
+                    savepth = os.path.join(savedirpth,f"model_ep{ep}.pth")
+                    torch.save(self.model.state_dict(), savepth)
             #--------------------------
         self.logger.export_loss_plot()
         self.save_model()
