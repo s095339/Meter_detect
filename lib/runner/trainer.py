@@ -106,6 +106,7 @@ class trainer:
     def sup_train(self,ep):
         for batch, X in enumerate(self.supset):
             # Compute prediction and loss
+            
             X = X.to(device).float()
         
             
@@ -163,6 +164,13 @@ class trainer:
                     for i in range(self.supep):
                         print(f"supEP {i}")
                         self.sup_train(ep)
+                    dirname = f"model_ep{ep}"
+                    savedirpth = os.path.join(self.logger.dirpath,dirname)
+                    os.mkdir(savedirpth)
+                    savepth = os.path.join(savedirpth,f"model_ep{ep}.pth")
+                    torch.save(self.model.state_dict(), savepth)
+            else:
+                if ep %5 == 4:
                     dirname = f"model_ep{ep}"
                     savedirpth = os.path.join(self.logger.dirpath,dirname)
                     os.mkdir(savedirpth)

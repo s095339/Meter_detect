@@ -9,7 +9,21 @@ from config.cfg import _C as cfg
 
 #---
 from lib.util.visualization import img_show
-
+if cfg.DATASET.NORMALIZE:
+    transform = transforms.Compose([
+                    transforms.ToTensor(), 
+                    transforms.Normalize([0.5], [0.5])
+                    ])
+    invTrans = transforms.Compose([ 
+                                transforms.Normalize(mean = [ -0.5],
+                                                    std = [ 1/0.5]),
+                                ])
+else:
+    transform = transforms.Compose([
+                    transforms.ToTensor()
+                    ])
+    invTrans = None
+print("transoform:",transform)
 def parse_args():
     parser = argparse.ArgumentParser(description='Do anything you want through command line')
     parser.add_argument('--mode',
@@ -28,10 +42,7 @@ def parse_args():
 def test(arg,cfg):
     pass
 def train_sup(arg,cfg):
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
+
     dataset =  SupportDatset(
         cfg = cfg,
         transform = transform
@@ -45,27 +56,8 @@ def train_sup(arg,cfg):
     )
     trainer.run()
 def implement(arg,cfg):
-    """
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-    """
-    transform = transforms.Compose([
-                    transforms.ToTensor(), 
-                    #transforms.Normalize([0.5], [0.5])
-                    ])
-    """
-    invTrans = transforms.Compose([ transforms.Normalize(mean = [ 0., 0., 0. ],
-                                                     std = [ 1/0.229, 1/0.224, 1/0.225 ]),
-                                    transforms.Normalize(mean = [ -0.485, -0.456, -0.406 ],
-                                                     std = [ 1., 1., 1. ]),
-                                 ])
-    """
-    invTrans = transforms.Compose([ 
-                                    transforms.Normalize(mean = [ -0.5, -0.5],
-                                                     std = [ 1., 1.]),
-                                 ])
+    
+    
     target_transform = torch.tensor
     if arg.impleset == "test" or "":
         dataset = testDataset(cfg = cfg,
@@ -83,14 +75,14 @@ def implement(arg,cfg):
         from lib.runner.implementation import implementer
         Implementer = implementer(cfg = cfg,
                         dataset = dataset,
-                        # inv_train = invTrans,
+                        inv_train = invTrans,
                         arg = arg)
         Implementer.run(test_number=10)
     else:
         from lib.runner.implementation import sup_implementer
         Implementer = sup_implementer(cfg = cfg,
                         dataset = dataset,
-                        # inv_train = invTrans,
+                        inv_train = invTrans,
                         arg = arg)
         Implementer.run()
 
@@ -99,26 +91,18 @@ def implement(arg,cfg):
 
 def train(arg,cfg):
     #prepare data-----------------
-
-
-    transform = transforms.Compose([
-                    transforms.ToTensor(), 
-                    #transforms.Normalize([0.5], [0.5])
-                    ])
     target_transform = torch.tensor
     dataset = MeterDataset(cfg = cfg,
                             transform = transform,
                             target_transform = target_transform
                             )
     trainset = dataset
-    #trainset,valset = random_split(dataset, [9000,1000])
-    #show img
+    
+
     supset =  SupportDatset(
         cfg = cfg,
         transform = transform
     )
-    
-
 
     #----------------------------------
     from lib.runner.trainer import trainer

@@ -37,6 +37,7 @@ class MeterDataset(Dataset):
         self.target_transform = target_transform
         #灰階----------------------
         self.gray = self.cfg.DATASET.GRAYSCALE 
+        print("training data transform:",transform)
         print("Len of data = ",len(self))
 
     def read_img_list(self):
@@ -181,7 +182,7 @@ class SupportDatset(Dataset):
         #print(self.batch_imglist[50])
         #print(len(self.batch_imglist[50]))
         #split data--------------------------------------------
-        
+        print("sup data transform:",transform)
     def __len__(self):
         return 14
 
