@@ -74,6 +74,7 @@ class sup_implementer:
         self.cfg = cfg
         self.arg = arg
         #------
+        self.label = cfg.SUPTRAIN.LABEL
         self.dataset = dataset
         self.model = MAJIYABAKUNet(cfg = self.cfg, arg = self.arg).to(device)
         #------
@@ -89,6 +90,9 @@ class sup_implementer:
     def validate(self):
         self.model.eval()
         for batch, X in enumerate(self.dataset):
+            if self.label:
+                X = X[0]
+                
             for x in X:
                 x = torch.unsqueeze(x,dim = 0)
                 with torch.no_grad():

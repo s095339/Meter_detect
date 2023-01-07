@@ -69,3 +69,6 @@ def ShowGrayImgFromTensor(img,label):
     label = label.cpu().detach().squeeze().numpy()
     visual(img,label,isvisual = True)
 
+def ShowGrayImgFromTensorWithoutLabel(img):
+    img = img.cpu().detach().squeeze().numpy()
+    img_show(img)

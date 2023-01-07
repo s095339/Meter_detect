@@ -189,8 +189,11 @@ def KeepSizeResize(image,key_points):
 def imrotate(image,key_points):
 
     ia.seed(1)
-    angle_of_rotation = (random.random()*2-1)*180
-
+    angle_of_rotation_list = [22.5,45,67,90,112,135,157,180,-22.5,-45,-67,-90,-112,-135,-157,-180]
+    #angle_of_rotation = (random.random()*2-1)*180
+    random.shuffle(angle_of_rotation_list)
+    angle_of_rotation = angle_of_rotation_list[4]
+    #print(angle_of_rotation)
     kps = KeypointsOnImage([
             Keypoint(x=key_points[0], y=key_points[1]),
             Keypoint(x=key_points[2], y=key_points[3]),

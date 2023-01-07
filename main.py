@@ -55,6 +55,9 @@ def train_sup(arg,cfg):
         arg = arg
     )
     trainer.run()
+
+    
+
 def implement(arg,cfg):
     
     
@@ -77,7 +80,7 @@ def implement(arg,cfg):
                         dataset = dataset,
                         inv_train = invTrans,
                         arg = arg)
-        Implementer.run(test_number=10)
+        Implementer.run(test_number=100)
     else:
         from lib.runner.implementation import sup_implementer
         Implementer = sup_implementer(cfg = cfg,
@@ -120,6 +123,8 @@ def main(arg,cfg):
         test(arg,cfg)
     elif arg.mode == 'train_sup' or arg.mode == 'suptrain':
         train_sup(arg,cfg)
+    elif arg.mode == 'train_sup2' or arg.mode == "suptrain2":
+        train_sup2(arg,cfg)
     else: # arg.mode == "implement":
         implement(arg,cfg)
     return

@@ -132,6 +132,7 @@ class testDataset(Dataset):
             image = self.transform(image)
         return image
 
+
 class SupportDatset(Dataset):
     def __init__(self, cfg, transform):
         """
@@ -149,6 +150,7 @@ class SupportDatset(Dataset):
         self.dataroot = cfg.SUPTRAIN.DATAROOT
         self.bs = cfg.SUPTRAIN.BS
         self.preprocess = augresize
+        self.label = self.cfg.SUPTRAIN.LABEL # true of false
         self.imgsize = cfg.DATASET.IMGSIZE
         self.gray = self.cfg.DATASET.GRAYSCALE 
         if 48 % self.bs !=0:
@@ -157,11 +159,16 @@ class SupportDatset(Dataset):
         #read sup data in data dir----------------------
         self.dirlist = os.listdir(self.dataroot)
         self.imglist = [] #14個集合 每個集合48個圖
+        self.labellist = ["none" for i in range(16)]
+        print(self.labellist)
         for dir_n in self.dirlist:
             if dir_n =="0" or dir_n =="15":
                 print("neglect dir ",dir_n," this dir only has one picture!!!")
                 continue
             dirpath = os.path.join(self.dataroot,dir_n)
+            label_index = int(dir_n)
+            #label of each suptrain set
+            self.labellist[label_index] = os.path.join(dirpath,"gauge_0.png")
             print(f"read imgs from {dirpath}...",end = ",")
             imglist = os.listdir(dirpath)
             templist = []
@@ -178,10 +185,12 @@ class SupportDatset(Dataset):
             temp = [List[i:i+self.bs] for i in range(0,len(List),self.bs)]
             for c in temp: self.batch_imglist.append(c)
         random.shuffle(self.batch_imglist)
+       
         #print(f"{len(self.batch_imglist)} sets of sup data in total")
         #print(self.batch_imglist[50])
         #print(len(self.batch_imglist[50]))
         #split data--------------------------------------------
+        print("suplabe = ",self.labellist)
         print("sup data transform:",transform)
     def __len__(self):
         return 14
@@ -193,6 +202,13 @@ class SupportDatset(Dataset):
         """
         imglist = self.batch_imglist[idx]
         
+        if self.label:
+            temppath = imglist[0]
+            labelindex = temppath.replace('\\','/').split('/')[3]
+            labelpath = self.labellist[int(labelindex)]
+            label = cv2.imread(labelpath,cv2.IMREAD_GRAYSCALE)
+            label,_ = self.preprocess(label,self.imgsize,[0,0,0,0,0,0,0,0])
+            label = self.transform(label).unsqueeze(dim = 0)
         #print(idx)
         #print(imglist)
         #print(imglist)
@@ -218,4 +234,11 @@ class SupportDatset(Dataset):
         #if self.transform:
             
         #print(imgbatch.shape)
-        return batchdata
+        if self.label:
+            
+            return batchdata,label
+        else:
+            return batchdata
+
+
+   

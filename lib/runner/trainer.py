@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from lib.model.model import MAJIYABAKUNet
 #for loss------
 from lib.core.loss import WeightsMse # for supervised learning
-from lib.core.loss import RaidusVarLoss # for unsupervised learning
+from lib.core.loss import RaidusVarLoss,RaidusDiffLoss # for unsupervised learning
 #for validate----
 from lib.core.acc import angle_calculate
 #------
@@ -14,7 +14,7 @@ import os,time
 #------
 from .logger import logger
 #======
-from lib.util.visualization import ShowGrayImgFromTensor
+from lib.util.visualization import ShowGrayImgFromTensor,ShowGrayImgFromTensorWithoutLabel
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -108,16 +108,12 @@ class trainer:
             # Compute prediction and loss
             
             X = X.to(device).float()
-        
-            
             pred = self.model(X)
             loss = self.suploss_fn(pred)
 
             # Backpropagation
             self.optimizer.zero_grad()
             #loss.backward()
-        
-
             loss.backward(retain_graph=True)
             self.optimizer.step()
 
@@ -192,7 +188,7 @@ class sup_trainer:
         self.lr = cfg.SUPTRAIN.LR0
         self.bs = cfg.SUPTRAIN.BS
         self.ep = cfg.SUPTRAIN.EPOCH
-    
+        self.label = cfg.SUPTRAIN.LABEL
         #logger
         self.logger = logger(cfg,mode = "suptrain")
         #initialize----------------------------------
@@ -226,12 +222,40 @@ class sup_trainer:
         os.mkdir(dirpath)
         savepth = os.path.join(dirpath,f"SUPTRAIN_model_ep{self.ep}_bs{self.bs}.pth")
         torch.save(self.model.state_dict(), savepth)
+    def train_loop_label(self,ep):
+        self.model.train()
+        for batch, (X,Y) in enumerate(self.dataset):
+            # Compute prediction and loss
+            X = X.to(device).float()
+            Y = Y.to(device).float()
+            #for x in X:
+            #    ShowGrayImgFromTensorWithoutLabel(torch.squeeze(x))
+            #for x in Y:
+            #    ShowGrayImgFromTensorWithoutLabel(torch.squeeze(x))
+            label = self.model(Y)
+            pred = self.model(X)
+            loss = self.loss_fn(pred,label)
+
+            # Backpropagation
+            self.optimizer.zero_grad()
+            #loss.backward()
+        
+
+            loss.backward(retain_graph=True)
+            self.optimizer.step()
+
+            if batch % 10 == 0:
+                loss, current = loss.item(), batch * len(X)
+                print(f"loss: {loss:>7f}  [{current:>5d}]")
+                self.logger.log_insert(ep = ep,batch = batch,loss = loss)
     def train_loop(self,ep):
         self.model.train()
         for batch, X in enumerate(self.dataset):
             # Compute prediction and loss
             X = X.to(device).float()
-        
+
+            for x in X:
+                ShowGrayImgFromTensorWithoutLabel(torch.squeeze(x))
             
             pred = self.model(X)
             loss = self.loss_fn(pred)
@@ -251,6 +275,9 @@ class sup_trainer:
     def run(self):
         for ep in range(self.ep):
             print("epoch = ",ep)
-            self.train_loop(ep)
+            if not self.label:
+                self.train_loop(ep)
+            else:
+                self.train_loop_label(ep)
         self.logger.export_loss_plot()
         self.save_model()

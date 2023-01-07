@@ -40,6 +40,54 @@ def dist(p0,p1):
     eps = 0.01
     dist = abs(torch.sqrt(torch.pow(p1[0]-p0[0],2)+torch.pow(p1[1]-p0[1],2)+ eps))
     return dist
+
+def RaidusDiffLoss(pred,label):
+    mse = nn.MSELoss()
+    bs = pred.shape[0]
+    anglelist = [] #指針的角度
+    minmaxanglelist = [] #最小值到最大值的總角度
+    for key_point in pred:    
+        angle = 0.0
+        #點點：最小值，最大值，中央值，指針值。
+        p = [(0,0),(0,0),(0,0),(0,0)]
+        for i in range(4):
+            p[i] = (key_point[i*2],key_point[i*2+1])
+        #指針的角度計算===============================
+        a = dist(p[0],p[3])#a:最小值到指針值的直線距離
+        b = dist(p[3],p[2])#b:指針到中心的直線距離
+        c = dist(p[2],p[0])#c:中心到最小值的直線距離
+        temp = (torch.pow(b,2)+torch.pow(c,2)-torch.pow(a,2))
+        temp = temp/(2*b*c+0.001)
+        angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
+        anglelist.append(angle)
+        #最小值到最大值的角度計算=====================
+        a = dist(p[0],p[1])#a:最小值到最大值的直線距離
+        b = dist(p[1],p[2])#b:最大值到中心的直線距離
+        c = dist(p[2],p[0])#c:中心到最小值的直線距離
+        temp = (torch.pow(b,2)+torch.pow(c,2)-torch.pow(a,2))
+        temp = temp/(2*b*c+0.001)
+        angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
+        minmaxanglelist.append(angle)
+    for key_point in label:
+        angle = 0.0
+        #點點：最小值，最大值，中央值，指針值。
+        p = [(0,0),(0,0),(0,0),(0,0)]
+        for i in range(4):
+            p[i] = (key_point[i*2],key_point[i*2+1])
+        #指針的角度計算===============================
+        a = dist(p[0],p[3])#a:最小值到指針值的直線距離
+        b = dist(p[3],p[2])#b:指針到中心的直線距離
+        c = dist(p[2],p[0])#c:中心到最小值的直線距離
+        temp = (torch.pow(b,2)+torch.pow(c,2)-torch.pow(a,2))
+        temp = temp/(2*b*c+0.001)
+        label_angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
+    batchlabel = torch.cat([label_angle for i in range(bs)],0)
+    batchangle = torch.cat(anglelist,0)
+    #print("label = ",batchlabel)
+    #print("radiasu = ",batchangle)
+    
+    
+    return 0.8*mse(batchangle,batchlabel)
 def RaidusVarLoss(pred):
     """
     loss function for self supervised learning
@@ -83,6 +131,9 @@ def RaidusVarLoss(pred):
     #print(batchminmaxangle)
 
     #計算角度的variance
-    LOSS= torch.var(batchangle)+0.5*torch.var(batchminmaxangle)
+    LOSS= 0.8*torch.var(batchangle)+0.1*torch.var(batchminmaxangle)
     #print("LOSS = ",LOSS)
-    return LOSS
+    if cfg.DATASET.NORMALIZE:
+        return LOSS/8.
+    else:
+        return LOSS
