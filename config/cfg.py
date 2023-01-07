@@ -22,7 +22,7 @@ _C.DATASET.PREPROCESS = 'augresize' #resize #看是要padding  勸你不要用pa
 _C.DATASET.PADDINGSIZE = [720 , 720]
 _C.DATASET.IMGSIZE = [480,480]
 _C.DATASET.GRAYSCALE = True
-_C.DATASET.NORMALIZE = True
+_C.DATASET.NORMALIZE = False
 
 _C.DATAAUG = CN(new_allowed=True)
 _C.DATAAUG.ENABLE = True
@@ -50,15 +50,15 @@ _C.TRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
 _C.SUPTRAIN = CN(new_allowed=True)
 _C.SUPTRAIN.ENABLE = False
 _C.SUPTRAIN.CYCLE = 2#每train幾次跑一次sup資料
-_C.SUPTRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)
-_C.SUPTRAIN.BS = 1 #必須是48的因數。
-_C.SUPTRAIN.EPOCH = 2
+_C.SUPTRAIN.LR0 = 0.0001  # initial learning rate (SGD=1E-2, Adam=1E-3)
+_C.SUPTRAIN.BS = 10 #必須是48的因數。
+_C.SUPTRAIN.EPOCH = 10
 _C.SUPTRAIN.OPTIM = "adam" #或 SGD 或 Adagrad
 _C.SUPTRAIN.LOSS = "RaidusDiffLoss"
 _C.SUPTRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
 _C.SUPTRAIN.DATAROOT = "./data/sup"
 _C.SUPTRAIN.LABEL = True
-
+_C.SUPTRAIN.IMP = 'x'
 # testing
 _C.TEST = CN(new_allowed=True)
 _C.TEST.DATAROOT = "./data/test/test"

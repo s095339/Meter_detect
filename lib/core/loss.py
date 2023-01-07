@@ -45,7 +45,7 @@ def RaidusDiffLoss(pred,label):
     mse = nn.MSELoss()
     bs = pred.shape[0]
     anglelist = [] #指針的角度
-    minmaxanglelist = [] #最小值到最大值的總角度
+    labelanglelist = []
     for key_point in pred:    
         angle = 0.0
         #點點：最小值，最大值，中央值，指針值。
@@ -60,14 +60,6 @@ def RaidusDiffLoss(pred,label):
         temp = temp/(2*b*c+0.001)
         angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
         anglelist.append(angle)
-        #最小值到最大值的角度計算=====================
-        a = dist(p[0],p[1])#a:最小值到最大值的直線距離
-        b = dist(p[1],p[2])#b:最大值到中心的直線距離
-        c = dist(p[2],p[0])#c:中心到最小值的直線距離
-        temp = (torch.pow(b,2)+torch.pow(c,2)-torch.pow(a,2))
-        temp = temp/(2*b*c+0.001)
-        angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
-        minmaxanglelist.append(angle)
     for key_point in label:
         angle = 0.0
         #點點：最小值，最大值，中央值，指針值。
@@ -81,13 +73,14 @@ def RaidusDiffLoss(pred,label):
         temp = (torch.pow(b,2)+torch.pow(c,2)-torch.pow(a,2))
         temp = temp/(2*b*c+0.001)
         label_angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
-    batchlabel = torch.cat([label_angle for i in range(bs)],0)
+        labelanglelist.append(label_angle)
+    batchlabel = torch.cat(labelanglelist,0)
     batchangle = torch.cat(anglelist,0)
     #print("label = ",batchlabel)
     #print("radiasu = ",batchangle)
     
     
-    return 0.8*mse(batchangle,batchlabel)
+    return mse(batchangle,batchlabel)
 def RaidusVarLoss(pred):
     """
     loss function for self supervised learning

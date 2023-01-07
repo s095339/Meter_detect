@@ -128,7 +128,7 @@ class trainer:
         for batch, (X, y) in enumerate(self.trainloader):
             # Compute prediction and loss
             #for i in range(8):
-            #    ShowGrayImgFromTensor(X[i],y[i])
+            #     ShowGrayImgFromTensor(X[i],y[i])
             X = X.to(device).float()
             y = y.to(device).float()
             #print("------------")
@@ -209,7 +209,9 @@ class sup_trainer:
         self.loss_fn = eval(self.cfg.SUPTRAIN.LOSS)
 
         #optim--------------------------------------
-        
+        if self.label:
+            self.suploader = DataLoader(self.dataset,self.bs,shuffle=True)
+
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
         
         #--------------------------------------------------------
@@ -224,14 +226,12 @@ class sup_trainer:
         torch.save(self.model.state_dict(), savepth)
     def train_loop_label(self,ep):
         self.model.train()
-        for batch, (X,Y) in enumerate(self.dataset):
+        for batch, (X,Y) in enumerate(self.suploader):
             # Compute prediction and loss
             X = X.to(device).float()
             Y = Y.to(device).float()
-            #for x in X:
-            #    ShowGrayImgFromTensorWithoutLabel(torch.squeeze(x))
-            #for x in Y:
-            #    ShowGrayImgFromTensorWithoutLabel(torch.squeeze(x))
+            #print(X.shape)
+            #print(Y.shape)
             label = self.model(Y)
             pred = self.model(X)
             loss = self.loss_fn(pred,label)

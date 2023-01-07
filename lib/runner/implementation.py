@@ -86,15 +86,16 @@ class sup_implementer:
             self.model.load_state_dict(weights)
         else:
             raise NotImplementedError("needs pretrained!!!")
-
+        if self.label:
+            self.loader = DataLoader(self.dataset,1,False)
     def validate(self):
         self.model.eval()
-        for batch, X in enumerate(self.dataset):
-            if self.label:
-                X = X[0]
-                
-            for x in X:
-                x = torch.unsqueeze(x,dim = 0)
+        if self.label:
+            for batch,(X,Y) in enumerate(self.loader):
+                if self.cfg.SUPTRAIN.IMP =='x':
+                    x = X
+                else:
+                    x = Y
                 with torch.no_grad():
                     pred = self.model(x.clone().to(device))
                 from lib.util.visualization import meterlike
@@ -107,6 +108,22 @@ class sup_implementer:
                 print(x.shape)
                 pred  = pred.cpu().detach().numpy().squeeze()
                 meterlike(x,pred,isvisual = True)
+        else:
+            for batch, X in enumerate(self.dataset):
+                for x in X:
+                    x = torch.unsqueeze(x,dim = 0)
+                    with torch.no_grad():
+                        pred = self.model(x.clone().to(device))
+                    from lib.util.visualization import meterlike
+                    if self.inv_transform:
+                        x = self.inv_transform(x)
+                    try:
+                        x  = x.cpu().detach().numpy().squeeze().transpose(1,2,0)
+                    except:
+                        x  = x.cpu().detach().numpy().squeeze()
+                    print(x.shape)
+                    pred  = pred.cpu().detach().numpy().squeeze()
+                    meterlike(x,pred,isvisual = True)
         
         #mean_loss = total_loss/len(self.valloader)
         #print(f"{bcolors.OKGREEN}validate mean loss = :{bcolors.WARNING}{mean_loss}{bcolors.ENDC}")

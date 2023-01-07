@@ -135,16 +135,6 @@ class testDataset(Dataset):
 
 class SupportDatset(Dataset):
     def __init__(self, cfg, transform):
-        """
-        sup資料的使用(自監督學習)
-        只使用資料夾1~14 因為裡面都統一有48個檔案
-        每個資料夾的第一個檔案都是擺正的(當成label)，
-        後面都是被助教各種摧殘的鬼神圖片。不過md我的GPU不夠用
-
-        每次固定抖出8張圖片
-        要設定這個也不是不行
-        不然設定一下好了
-        """
         self.transform = transform
         self.cfg = cfg
         self.dataroot = cfg.SUPTRAIN.DATAROOT
@@ -153,7 +143,7 @@ class SupportDatset(Dataset):
         self.label = self.cfg.SUPTRAIN.LABEL # true of false
         self.imgsize = cfg.DATASET.IMGSIZE
         self.gray = self.cfg.DATASET.GRAYSCALE 
-        if 48 % self.bs !=0:
+        if 48 % self.bs !=0  and not self.label:
             raise ValueError("sup train bs必須可被8整除")
         
         #read sup data in data dir----------------------
@@ -171,21 +161,31 @@ class SupportDatset(Dataset):
             self.labellist[label_index] = os.path.join(dirpath,"gauge_0.png")
             print(f"read imgs from {dirpath}...",end = ",")
             imglist = os.listdir(dirpath)
-            templist = []
-            for img in imglist:
-                #print(img)
-                img_path = os.path.join(dirpath,img)
-                templist.append(img_path)
-            print(f"{len(templist)} images in {dirpath}")
-            random.shuffle(templist)
-            self.imglist.append(templist)
+            if not self.label:
+                templist = []
+                for img in imglist:
+                    #print(img)
+                    img_path = os.path.join(dirpath,img)
+                    templist.append(img_path)
+                print(f"{len(templist)} images in {dirpath}")
+                random.shuffle(templist)
+                self.imglist.append(templist)
+            else: #self.label = true
+                for img in imglist:
+                    img_path = os.path.join(dirpath,img)
+                    self.imglist.append(img_path)
         #實際要運用在訓練的list
-        self.batch_imglist = []
-        for List in self.imglist:
-            temp = [List[i:i+self.bs] for i in range(0,len(List),self.bs)]
-            for c in temp: self.batch_imglist.append(c)
-        random.shuffle(self.batch_imglist)
-       
+        if not self.label:
+            self.batch_imglist = []
+            for List in self.imglist:
+                temp = [List[i:i+self.bs] for i in range(0,len(List),self.bs)]
+                for c in temp: self.batch_imglist.append(c)
+            random.shuffle(self.batch_imglist)
+            
+        else:
+            self.batch_imglist = self.imglist
+            #random.shuffle(self.batch_imglist)
+            #print(self.batch_imglist)
         #print(f"{len(self.batch_imglist)} sets of sup data in total")
         #print(self.batch_imglist[50])
         #print(len(self.batch_imglist[50]))
@@ -193,52 +193,48 @@ class SupportDatset(Dataset):
         print("suplabe = ",self.labellist)
         print("sup data transform:",transform)
     def __len__(self):
-        return 14
+        if self.label:
+            return len(self.batch_imglist)
+        else:
+            return 14
 
     def __getitem__(self, idx):
         """
         強迫dataloader 的batch=1
         然後這邊一次抽幾張由cfg決定。
         """
-        imglist = self.batch_imglist[idx]
+        if not self.label:
+            imglist = self.batch_imglist[idx]
+            imgstack = []
+            
+            for imgpth in imglist:
+                if self.gray:
+                    original_img = cv2.imread(imgpth,cv2.IMREAD_GRAYSCALE)
+                else:
+                    original_img = cv2.imread(imgpth)
+
+                #original_img = cv2.imread(imgpth)
+                image,_ = self.preprocess(original_img,self.imgsize,[0,0,0,0,0,0,0,0])
+                img = self.transform(image).unsqueeze(dim = 0)
+                imgstack.append(img)
         
+            batchdata = torch.cat(imgstack,0)
+            return batchdata
         if self.label:
-            temppath = imglist[0]
+            img_path = self.batch_imglist[idx]
+            #print("img = ",img_path)
+            img = cv2.imread(img_path,cv2.IMREAD_GRAYSCALE)
+            image,_ = self.preprocess(img,self.imgsize,[0,0,0,0,0,0,0,0])
+            image = self.transform(image)#.unsqueeze(dim = 0)
+
+            temppath = img_path
             labelindex = temppath.replace('\\','/').split('/')[3]
             labelpath = self.labellist[int(labelindex)]
             label = cv2.imread(labelpath,cv2.IMREAD_GRAYSCALE)
+            #print("label =",labelpath)
             label,_ = self.preprocess(label,self.imgsize,[0,0,0,0,0,0,0,0])
-            label = self.transform(label).unsqueeze(dim = 0)
-        #print(idx)
-        #print(imglist)
-        #print(imglist)
-        imgstack = []
-        
-        for imgpth in imglist:
-            if self.gray:
-                original_img = cv2.imread(imgpth,cv2.IMREAD_GRAYSCALE)
-            else:
-                original_img = cv2.imread(imgpth)
-
-            #original_img = cv2.imread(imgpth)
-            image,_ = self.preprocess(original_img,self.imgsize,[0,0,0,0,0,0,0,0])
-            img = self.transform(image).unsqueeze(dim = 0)
-            imgstack.append(img)
-            #print(img.shape)
-        #print(len(imgstack))
-        batchdata = torch.cat(imgstack,0)
-        #print(batchdata.shape)
-        #print(imgstack)
-
-        #print(imgbatch.shape)
-        #if self.transform:
-            
-        #print(imgbatch.shape)
-        if self.label:
-            
-            return batchdata,label
-        else:
-            return batchdata
+            label = self.transform(label)#.unsqueeze(dim = 0)
+            return image,label
 
 
    
