@@ -63,6 +63,7 @@ _C.SUPTRAIN.IMP = 'x'
 _C.TEST = CN(new_allowed=True)
 _C.TEST.DATAROOT = "./data/test/test"
 _C.TEST.CSVFILE = "./data/test/test.csv"
+_C.TEST.OUTPUTPATH = "./data/test/"
 _C.TEST.PREPROCESS = "augresize"
 _C.TEST.PADDINGSIZE = [720 , 720]
 _C.TEST.IMGSIZE = [480,480]

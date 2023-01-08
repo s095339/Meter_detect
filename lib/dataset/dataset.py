@@ -112,7 +112,7 @@ class testDataset(Dataset):
 
         self.img_list = self.csv['name']
         #print(_C.LOSS)
-       
+        self.get_imgname = False
         self.imgsize = cfg.TEST.IMGSIZE
         self.preprocess = eval(f"{cfg.TEST.PREPROCESS}")
         self.transform = transform
@@ -123,8 +123,9 @@ class testDataset(Dataset):
         return len(self.img_list)
 
     def __getitem__(self, idx):
+        #print(self.img_list[idx])
         img_path = os.path.join(self.img_dir, self.img_list[idx])
-        print("read file:",img_path)
+        #print(self.img_list[idx])
         if self.gray:
            
             original_img = cv2.imread(img_path,cv2.IMREAD_GRAYSCALE)
@@ -134,7 +135,12 @@ class testDataset(Dataset):
         image,_ = self.preprocess(original_img,self.imgsize,[0,0,0,0,0,0,0,0])
         if self.transform:
             image = self.transform(image)
-        return image
+
+
+        if self.get_imgname:
+            return image,self.img_list[idx]
+        else:
+            return image
 
 
 class SupportDatset(Dataset):

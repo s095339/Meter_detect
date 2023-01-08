@@ -35,18 +35,26 @@ weights-
 >conda create --name meter python=3.7
 2.下載套件
 >conda install pytorch=1.7.0 torchvision=0.8.0 cudatoolkit=10.2 -c pytorch
-3.
+
 
 ## 3.train
 For training, copy the command:
 >python main.py --mode train
 log裡面會存放每個ep的權重
+## 4.suptrain
+sup資料的訓練
+>python main.py --mode suptrain
 
-## 4.測試可視化結果
+## 5.test
+test
+>python main.py --mode test
+## 6.測試可視化結果
 
 去config/cfg.py底下的 _C.PRETRAIN 將weights改成想測試的weights
 測試在訓練資料的結果
 >python main.py --impleset train
 測試在測試資料的結果
 >python main.py --impleset test
+測試在輔助資料的結果
+>python main.py --impleset suptrain
 ## 角度

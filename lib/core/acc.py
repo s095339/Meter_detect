@@ -1,7 +1,23 @@
 
 import numpy as np
 import math
+import numpy as np
+def calc_gauge_value(angle,maxangle):
+    value = 15*(angle/maxangle)
+    if value>15:
+        value = 15.0
+    return f"{value:.1f}"
+def calc_angle(v1, v2):
 
+    r =np.arccos(np.dot(v1,v2)/(np.linalg.norm(v1,2)*np.linalg.norm(v2, 2)))
+    deg = r * 180 / np.pi
+    a1 = np.array([*v1, 0])
+    a2 = np.array([*v2,0])
+    a3 = np.cross(a1, a2)
+    if np.sign(a3[2]) > 0:
+        deg = 360 - deg
+    return deg
+    
 def dist(p0,p1):
     dist = abs(math.sqrt(math.pow(p1[0]-p0[0],2)+math.pow(p1[1]-p0[1],2)))
     return dist
@@ -16,6 +32,36 @@ def angle_calculate(key_point,mode = "radians"):
     return:
     ------------------
     錶面角度
+    """
+    
+    angle = 0.0
+    p = [(0,0),(0,0),(0,0),(0,0)]
+    for i in range(4):
+        p[i] = (key_point[i*2].astype(np.float64),key_point[i*2+1].astype(np.float64))
+    
+    #計算指針角度
+    angle = calc_angle(
+        [
+            p[3][0]-p[2][0],
+            p[3][1]-p[2][1]
+        ],
+        [
+            p[0][0]-p[2][0],
+            p[0][1]-p[2][1]
+        ]
+        )
+    #計算與最大值的角度
+    maxangle = calc_angle(
+        [
+            p[1][0]-p[2][0],
+            p[1][1]-p[2][1]
+        ],
+        [
+            p[0][0]-p[2][0],
+            p[0][1]-p[2][1]
+        ]
+        )
+    return angle,maxangle
     """
     angle = 0.0
     p = [(0,0),(0,0),(0,0),(0,0)]
@@ -38,3 +84,4 @@ def angle_calculate(key_point,mode = "radians"):
         angle = np.rad2deg(angle)
     
     return angle
+    """

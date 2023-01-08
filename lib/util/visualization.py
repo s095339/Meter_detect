@@ -3,7 +3,7 @@
 import cv2
 import math
 import numpy as np
-from lib.core.acc import angle_calculate
+from lib.core.acc import angle_calculate,calc_gauge_value
 def img_show(img):
     cv2.imshow("show",img)
     cv2.waitKey(0)
@@ -57,9 +57,12 @@ def meterlike(img,key_points,isvisual = False):
     image = cv2.line(image,p[2],p[0],(0,255,0),thickness = 2)
     #麻煩死了
     #標示角度
-    angle = angle_calculate(key_points,mode = "degree") 
+    angle,maxangle = angle_calculate(key_points,mode = "degree") 
+    value = calc_gauge_value(angle,maxangle)
     font = cv2.FONT_HERSHEY_PLAIN
-    cv2.putText(image,str("{:.3f}°".format(angle)),(200,200), font, 2,(255,255,255),2)
+    #cv2.putText(image,str("{:.3f}°".format(angle)),(200,200), font, 2,(255,255,255),2)
+    #cv2.putText(image,str("{:.3f}°".format(maxangle)),(200,400), font, 2,(255,255,255),2)
+    cv2.putText(image,str("{}".format(value)),(200,200), font, 2,(255,255,255),2)
     if isvisual:
         img_show(image)
     return

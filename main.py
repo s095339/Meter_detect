@@ -40,7 +40,16 @@ def parse_args():
 
     return args
 def test(arg,cfg):
-    pass
+    test_transform = transforms.Compose([
+                    transforms.ToTensor()]
+                    ) 
+    dataset = testDataset(cfg = cfg,transform = test_transform)
+    from lib.runner.tester import tester
+    Tester = tester(
+        cfg = cfg,
+        testset = dataset
+    )
+    Tester.run()
 def train_sup(arg,cfg):
 
     dataset =  SupportDatset(
