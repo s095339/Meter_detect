@@ -31,7 +31,7 @@ _C.DATAAUG.DATARATIO = 1 #0.1~1.0 這個數字代表著一次的ep裡面幾成�
 _C.DATAAUG.AUGRATIO = [4,4,1] #一成的旋轉，四成的
 #pretrain
 #test 或training的時候的pretrain weight
-_C.PRETRAIN =""#"./weights/nor_sup.pth" #"./weights/SUPTRAIN_202315_12_29_resnet34/SUPTRAIN_model_ep1_bs8.pth"#"./weights/aug_sup.pth"#"./weights/SUPTRAIN_202314_22_18_resnet34/SUPTRAIN_model_ep5_bs8.pth"#"./weights/model_ep100_bs8.pth"
+_C.PRETRAIN ="./weights/bestweight/res18_chou_ep45_suplabel.pth"#"./weights/nor_sup.pth" #"./weights/SUPTRAIN_202315_12_29_resnet34/SUPTRAIN_model_ep1_bs8.pth"#"./weights/aug_sup.pth"#"./weights/SUPTRAIN_202314_22_18_resnet34/SUPTRAIN_model_ep5_bs8.pth"#"./weights/model_ep100_bs8.pth"
 # train
 _C.TRAIN = CN(new_allowed=True)
 _C.TRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)
@@ -48,11 +48,11 @@ _C.TRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
 
 #self-supervised
 _C.SUPTRAIN = CN(new_allowed=True)
-_C.SUPTRAIN.ENABLE = False
-_C.SUPTRAIN.CYCLE = 2#每train幾次跑一次sup資料
+_C.SUPTRAIN.ENABLE = True
+_C.SUPTRAIN.CYCLE = 3#每train幾次跑一次sup資料
 _C.SUPTRAIN.LR0 = 0.0001  # initial learning rate (SGD=1E-2, Adam=1E-3)
 _C.SUPTRAIN.BS = 10 #必須是48的因數。
-_C.SUPTRAIN.EPOCH = 10
+_C.SUPTRAIN.EPOCH = 5
 _C.SUPTRAIN.OPTIM = "adam" #或 SGD 或 Adagrad
 _C.SUPTRAIN.LOSS = "RaidusDiffLoss"
 _C.SUPTRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'

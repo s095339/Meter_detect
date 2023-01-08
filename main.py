@@ -101,10 +101,13 @@ def train(arg,cfg):
                             )
     trainset = dataset
     
+    suptransform = transforms.Compose([
+                    transforms.ToTensor(), 
+                    ])
 
     supset =  SupportDatset(
         cfg = cfg,
-        transform = transform
+        transform = suptransform
     )
 
     #----------------------------------
@@ -123,8 +126,6 @@ def main(arg,cfg):
         test(arg,cfg)
     elif arg.mode == 'train_sup' or arg.mode == 'suptrain':
         train_sup(arg,cfg)
-    elif arg.mode == 'train_sup2' or arg.mode == "suptrain2":
-        train_sup2(arg,cfg)
     else: # arg.mode == "implement":
         implement(arg,cfg)
     return

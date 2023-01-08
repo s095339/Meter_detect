@@ -46,13 +46,18 @@ class trainer:
         self.suplr = cfg.SUPTRAIN.LR0
         self.supbs = cfg.SUPTRAIN.BS
         self.supep = cfg.SUPTRAIN.EPOCH
-        #------------------------------
+        
+        #data prepare------------------------------
         self.supset = supset
         self.trainloader = DataLoader(trainset, batch_size=self.bs, shuffle=True)
         self.val = False
         if valset != None:
             self.val = True
             self.valloader = DataLoader(valset, batch_size=1, shuffle=True)
+        self.label = True
+        #sup
+        if self.label:
+            self.suploader = DataLoader(self.supset,self.supbs,shuffle=True)
         #logger
         self.logger = logger(cfg)
         #initialize----------------------------------
@@ -81,7 +86,9 @@ class trainer:
             self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=self.lr)
         else:
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
-        #--------------------------------------------------------
+
+        self.sup_optimizer = torch.optim.Adam(self.model.parameters(), lr=self.suplr)
+        
     def save_model(self):
         result = time.localtime()
         dirname = f"{result.tm_year}{result.tm_mon}{result.tm_mday}_{result.tm_hour}_{result.tm_min}_{self.cfg.MODEL.BACKBONE}"
@@ -104,23 +111,30 @@ class trainer:
         mean_loss = total_loss/len(self.valloader)
         print(f"{bcolors.OKGREEN}validate mean loss = :{bcolors.WARNING}{mean_loss}{bcolors.ENDC}")
     def sup_train(self,ep):
-        for batch, X in enumerate(self.supset):
+        self.model.train()
+        for batch, (X,Y) in enumerate(self.suploader):
             # Compute prediction and loss
-            
             X = X.to(device).float()
+            Y = Y.to(device).float()
+            #print(X.shape)
+            #print(Y.shape)
+            label = self.model(Y)
             pred = self.model(X)
-            loss = self.suploss_fn(pred)
+            loss = self.suploss_fn(pred,label)
 
             # Backpropagation
-            self.optimizer.zero_grad()
+            self.sup_optimizer.zero_grad()
             #loss.backward()
-            loss.backward(retain_graph=True)
-            self.optimizer.step()
+        
 
-            if batch % 20 == 0:
+            loss.backward(retain_graph=True)
+            self.sup_optimizer.step()
+
+            if batch % 40 == 0:
                 loss, current = loss.item(), batch * len(X)
-                self.logger.log_writeline(f"suploss: {loss:>7f}  ")
-                print(f"suploss: {loss:>7f}  [{current:>5d}]")
+                print(f"loss: {loss:>7f}  [{current:>5d}]")
+                
+                self.logger.log_insert(ep = ep,batch = batch,loss = loss)
         
     def train_loop(self,ep):
         size = len(self.trainloader.dataset)
