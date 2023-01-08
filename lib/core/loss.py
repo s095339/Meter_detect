@@ -45,7 +45,9 @@ def RaidusDiffLoss(pred,label):
     mse = nn.MSELoss()
     bs = pred.shape[0]
     anglelist = [] #指針的角度
+    maxanglelist = []
     labelanglelist = []
+    maxlabelanglelist = []
     for key_point in pred:    
         angle = 0.0
         #點點：最小值，最大值，中央值，指針值。
@@ -60,6 +62,21 @@ def RaidusDiffLoss(pred,label):
         temp = temp/(2*b*c+0.001)
         angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
         anglelist.append(angle)
+        #--
+        angle = 0.0
+        #點點：最小值，最大值，中央值，指針值。
+        p = [(0,0),(0,0),(0,0),(0,0)]
+        for i in range(4):
+            p[i] = (key_point[i*2],key_point[i*2+1])
+        #指針的角度計算===============================
+        a = dist(p[0],p[1])#a:最小值到最大值的直線距離
+        b = dist(p[1],p[2])#b:最大值到中心的直線距離
+        c = dist(p[2],p[0])#c:中心到最小值的直線距離
+        temp = (torch.pow(b,2)+torch.pow(c,2)-torch.pow(a,2))
+        temp = temp/(2*b*c+0.001)
+        angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
+        maxanglelist.append(angle)
+
     for key_point in label:
         angle = 0.0
         #點點：最小值，最大值，中央值，指針值。
@@ -74,13 +91,32 @@ def RaidusDiffLoss(pred,label):
         temp = temp/(2*b*c+0.001)
         label_angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
         labelanglelist.append(label_angle)
+
+                #--
+        angle = 0.0
+        #點點：最小值，最大值，中央值，指針值。
+        p = [(0,0),(0,0),(0,0),(0,0)]
+        for i in range(4):
+            p[i] = (key_point[i*2],key_point[i*2+1])
+        #指針的角度計算===============================
+        a = dist(p[0],p[1])#a:最小值到最大值的直線距離
+        b = dist(p[1],p[2])#b:最大值到中心的直線距離
+        c = dist(p[2],p[0])#c:中心到最小值的直線距離
+        temp = (torch.pow(b,2)+torch.pow(c,2)-torch.pow(a,2))
+        temp = temp/(2*b*c+0.001)
+        angle = torch.acos(temp).unsqueeze(0)#.unsqueeze(0)
+        maxlabelanglelist.append(angle)
+
+
     batchlabel = torch.cat(labelanglelist,0)
     batchangle = torch.cat(anglelist,0)
+    batchmaxlabel = torch.cat(maxlabelanglelist,0)
+    batchmaxangle = torch.cat(maxanglelist,0)
     #print("label = ",batchlabel)
     #print("radiasu = ",batchangle)
     
     
-    return mse(batchangle,batchlabel)
+    return mse(batchangle,batchlabel)+mse(batchmaxangle,batchmaxlabel)
 def RaidusVarLoss(pred):
     """
     loss function for self supervised learning

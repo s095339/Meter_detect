@@ -13,6 +13,7 @@ import cv2
 
 #---
 import random #shuffle a list of sup train
+import pandas as pd #write csv file
 class MeterDataset(Dataset):
     def __init__(self, cfg, transform,target_transform ):
         """
@@ -107,7 +108,9 @@ class testDataset(Dataset):
         preprocess = cfg.TEST.PREPROCESS
         #---------------------------
         self.img_dir = img_dir
-        self.img_list = os.listdir(img_dir)
+        self.csv = pd.read_csv(cfg.TEST.CSVFILE)
+
+        self.img_list = self.csv['name']
         #print(_C.LOSS)
        
         self.imgsize = cfg.TEST.IMGSIZE
@@ -121,6 +124,7 @@ class testDataset(Dataset):
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_list[idx])
+        print("read file:",img_path)
         if self.gray:
            
             original_img = cv2.imread(img_path,cv2.IMREAD_GRAYSCALE)

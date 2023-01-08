@@ -62,9 +62,11 @@ _C.SUPTRAIN.IMP = 'x'
 # testing
 _C.TEST = CN(new_allowed=True)
 _C.TEST.DATAROOT = "./data/test/test"
+_C.TEST.CSVFILE = "./data/test/test.csv"
 _C.TEST.PREPROCESS = "augresize"
 _C.TEST.PADDINGSIZE = [720 , 720]
 _C.TEST.IMGSIZE = [480,480]
+
 #loggin
 _C.LOG = CN(new_allowed=True)
 _C.LOG.DIR = "./log"
