@@ -49,10 +49,13 @@ class logger:
         if self.mode.lower() =="suptrain":
             self.logger.warning(f"[Unsupervised Supportdata learning] epoch = {self.ep},batch = {self.bs},loss = {self.losstype},lr = {self.lr}")
     def log_writeline(self,text):
-        self.logger.info(text)
+        """
+        在log中插入字串(用於sup train 紀錄loss)
+        """
+        self.logger.info(text) 
     def log_insert(self,ep,batch,loss):
         """
-        訓練過程中記錄他的loss變化。並寫在log檔內。
+        訓練過程中記錄他的loss變化。並寫在log檔內。(用於supervised learning)
         """
         #print(f"epoch = {ep},batch = {batch},loss = {loss:>7f}")
         self.logger.info(f"epoch = {ep},batch = {batch},loss = {loss:>7f}")
@@ -63,6 +66,7 @@ class logger:
     def export_loss_plot(self):
         """
         訓練完成之後,輸出loss log來觀察下降趨勢。
+        (輸出的圖片很爛不要看)
         """
         loss_mean = np.mean(np.array(self.loss_record),axis = 0)
         xaxis = [i+1 for i in range(len(loss_mean))]

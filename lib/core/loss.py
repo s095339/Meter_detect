@@ -9,9 +9,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 #LOSS------------------------------------------------
 def WeightsMse(pred,label):
     """
-    想法:錶面的中心點是最critical的,如果中心點的位置錯了，那其他點再怎麼正確
-    都是沒用。所以讓中心點的loss比較大
-    其次重要的是錶的最大值最小值，最不重要的是指針的位置
+    
 
     label = [a,b,c,d]
     pred = [a_pred,b_pred,c_pred,d_pred]
@@ -25,7 +23,7 @@ def WeightsMse(pred,label):
     
     weights = torch.tensor(weight_stack).to(device)
     weights = torch.sqrt(weights)
-
+    print(weights*pred,weights*label)
     loss = loss_fn(weights*pred,weights*label)
     #點點：最小值，最大值，中心，指針值。
     #print(loss)
@@ -115,8 +113,8 @@ def RaidusDiffLoss(pred,label):
     #print("label = ",batchlabel)
     #print("radiasu = ",batchangle)
     
-    
-    return mse(batchangle,batchlabel)+mse(batchmaxangle,batchmaxlabel)
+    w = cfg.SUPTRAIN.DIFFLOSSWEIGHTS
+    return w[0]*mse(batchangle,batchlabel)+w[1]*mse(batchmaxangle,batchmaxlabel)
 def RaidusVarLoss(pred):
     """
     loss function for self supervised learning

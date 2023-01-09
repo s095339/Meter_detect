@@ -111,6 +111,9 @@ class trainer:
         mean_loss = total_loss/len(self.valloader)
         print(f"{bcolors.OKGREEN}validate mean loss = :{bcolors.WARNING}{mean_loss}{bcolors.ENDC}")
     def sup_train(self,ep):
+        """
+        混合訓練方案(失敗)
+        """
         self.model.train()
         for batch, (X,Y) in enumerate(self.suploader):
             # Compute prediction and loss
@@ -137,17 +140,21 @@ class trainer:
                 self.logger.log_insert(ep = ep,batch = batch,loss = loss)
         
     def train_loop(self,ep):
+        """
+        訓練資料的supervised learning
+        """
         size = len(self.trainloader.dataset)
         self.model.train()
         for batch, (X, y) in enumerate(self.trainloader):
-            # Compute prediction and loss
+           
             #for i in range(8):
             #     ShowGrayImgFromTensor(X[i],y[i])
+
             X = X.to(device).float()
             y = y.to(device).float()
             #print("------------")
             pred = self.model(X)
-            loss = self.loss_fn(pred, y)
+            loss = self.loss_fn(pred, y) #weightsMse
 
             # Backpropagation
             self.optimizer.zero_grad()
@@ -167,8 +174,12 @@ class trainer:
             print("epoch = ",ep)
             #儲存每5個ep的weights------
             self.train_loop(ep)
+
             if self.supEN:
-                
+                """
+                將supervised learning和sup train混合訓練
+                但這個方法很爛所以後面都沒用
+                """    
                 if ep % self.supcycle == self.supcycle-1 or ep == self.ep-1:
                     self.logger.log_writeline("suptrain--------")
                     for i in range(self.supep):
@@ -180,6 +191,9 @@ class trainer:
                     savepth = os.path.join(savedirpth,f"model_ep{ep}.pth")
                     torch.save(self.model.state_dict(), savepth)
             else:
+                """
+                單獨訓練supervied learning
+                """
                 if ep %5 == 4:
                     dirname = f"model_ep{ep}"
                     savedirpth = os.path.join(self.logger.dirpath,dirname)
@@ -268,8 +282,8 @@ class sup_trainer:
             # Compute prediction and loss
             X = X.to(device).float()
 
-            for x in X:
-                ShowGrayImgFromTensorWithoutLabel(torch.squeeze(x))
+            #for x in X:
+            #    ShowGrayImgFromTensorWithoutLabel(torch.squeeze(x))
             
             pred = self.model(X)
             loss = self.loss_fn(pred)

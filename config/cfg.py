@@ -18,20 +18,20 @@ _C.MODEL.BACKBONE = 'resnet18'  # 34 被我鎖住了
 _C.DATASET = CN(new_allowed=True)
 _C.DATASET.DATAROOT = './data/train/train_img'       # the path of images folder
 _C.DATASET.LABELROOT = './data/train/train_GT_keypoints.json'      # the path of det_annotations folder
-_C.DATASET.PREPROCESS = 'augresize' #resize #看是要padding  勸你不要用padding
-_C.DATASET.PADDINGSIZE = [720 , 720]
-_C.DATASET.IMGSIZE = [480,480]
-_C.DATASET.GRAYSCALE = True
-_C.DATASET.NORMALIZE = False
+_C.DATASET.PREPROCESS = 'augresize' #resize 或 padding  不要用padding
+_C.DATASET.PADDINGSIZE = [720 , 720] #沒用
+_C.DATASET.IMGSIZE = [480,480] #reszie的大小
+_C.DATASET.GRAYSCALE = True #灰階
+_C.DATASET.NORMALIZE = True #正規化
 
 _C.DATAAUG = CN(new_allowed=True)
-_C.DATAAUG.ENABLE = True
+_C.DATAAUG.ENABLE = True #不要關
 _C.DATAAUG.TYPE = ["imrotate","augshift","mixaug"]
 _C.DATAAUG.DATARATIO = 1 #0.1~1.0 這個數字代表著一次的ep裡面幾成的data要做aug
-_C.DATAAUG.AUGRATIO = [4,4,1] #一成的旋轉，四成的
+_C.DATAAUG.AUGRATIO = [4,4,1] #每一個增強方案的比例
 #pretrain
 #test 或training的時候的pretrain weight
-_C.PRETRAIN ="./weights/bestweight/res18_chou_ep45_suplabel.pth"#"./weights/nor_sup.pth" #"./weights/SUPTRAIN_202315_12_29_resnet34/SUPTRAIN_model_ep1_bs8.pth"#"./weights/aug_sup.pth"#"./weights/SUPTRAIN_202314_22_18_resnet34/SUPTRAIN_model_ep5_bs8.pth"#"./weights/model_ep100_bs8.pth"
+_C.PRETRAIN ="./weights/bestweight/yy.pth"#"./weights/nor_sup.pth" #"./weights/SUPTRAIN_202315_12_29_resnet34/SUPTRAIN_model_ep1_bs8.pth"#"./weights/aug_sup.pth"#"./weights/SUPTRAIN_202314_22_18_resnet34/SUPTRAIN_model_ep5_bs8.pth"#"./weights/model_ep100_bs8.pth"
 # train
 _C.TRAIN = CN(new_allowed=True)
 _C.TRAIN.LR0 = 0.001  # initial learning rate (SGD=1E-2, Adam=1E-3)
@@ -48,17 +48,18 @@ _C.TRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
 
 #self-supervised
 _C.SUPTRAIN = CN(new_allowed=True)
-_C.SUPTRAIN.ENABLE = True
+_C.SUPTRAIN.ENABLE = False
 _C.SUPTRAIN.CYCLE = 3#每train幾次跑一次sup資料
 _C.SUPTRAIN.LR0 = 0.0001  # initial learning rate (SGD=1E-2, Adam=1E-3)
-_C.SUPTRAIN.BS = 10 #必須是48的因數。
-_C.SUPTRAIN.EPOCH = 5
+_C.SUPTRAIN.BS = 12 #必須是48的因數。
+_C.SUPTRAIN.EPOCH = 10 
 _C.SUPTRAIN.OPTIM = "adam" #或 SGD 或 Adagrad
-_C.SUPTRAIN.LOSS = "RaidusDiffLoss"
+_C.SUPTRAIN.LOSS = "RaidusVarLoss"
 _C.SUPTRAIN.SAVEPTH = "./weights" #訓練好的權重存在這邊'
 _C.SUPTRAIN.DATAROOT = "./data/sup"
-_C.SUPTRAIN.LABEL = True
-_C.SUPTRAIN.IMP = 'x'
+_C.SUPTRAIN.LABEL = True #調True就好 False沒用了
+_C.SUPTRAIN.IMP = 'x' #沒用
+_C.SUPTRAIN.DIFFLOSSWEIGHTS = [1,1] #沒用
 # testing
 _C.TEST = CN(new_allowed=True)
 _C.TEST.DATAROOT = "./data/test/test"

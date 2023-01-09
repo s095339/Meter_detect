@@ -40,10 +40,13 @@ def parse_args():
 
     return args
 def test(arg,cfg):
+    #定義測試資料的normalization
     test_transform = transforms.Compose([
                     transforms.ToTensor()]
                     ) 
     dataset = testDataset(cfg = cfg,transform = test_transform)
+
+    #跑測試流程
     from lib.runner.tester import tester
     Tester = tester(
         cfg = cfg,
@@ -51,10 +54,12 @@ def test(arg,cfg):
     )
     Tester.run()
 def train_sup(arg,cfg):
-
+    sup_transform = transforms.Compose([
+                    transforms.ToTensor()]
+                    ) 
     dataset =  SupportDatset(
         cfg = cfg,
-        transform = transform
+        transform = sup_transform
     )
     
     from lib.runner.trainer import sup_trainer
@@ -129,13 +134,13 @@ def train(arg,cfg):
     Trainer.run()
     
 def main(arg,cfg):
-    if arg.mode == "train":
+    if arg.mode == "train": 
         train(arg,cfg)
     elif arg.mode == 'test':
         test(arg,cfg)
     elif arg.mode == 'train_sup' or arg.mode == 'suptrain':
         train_sup(arg,cfg)
-    else: # arg.mode == "implement":
+    else: # arg.mode == "implement": #跑可視化結果
         implement(arg,cfg)
     return
 if __name__ == '__main__':

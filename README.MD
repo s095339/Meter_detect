@@ -16,19 +16,37 @@ label：點點：最小值，最大值，中央值，指針值。
 The repo contains following files and dirs
 ```python=
 config-
-    |cfg.py(這邊調整bs epoch 等等)
-data-
-    |-sup
-    |-test
+    |cfg.py(這邊調整bs epoch 等整個專案的參數)
+data- 
+    |-sup 輔助資料集
+    |-test- 測試資料集
+          |-test
+          |-test.csv
     |-train---train_img
             |-train_GT_keypoints.json
-lib-
-    |-core (可能要放loss跟acc的算法)
+lib- (所有的東西)
+    |-core (設計演算法)
+        |-acc.py -定義指針角度的計算方法和錶面讀值的轉換
+        |-loss.py -設計supervised training和suptrain的loss
     |-dataset (data的處理方法、資料增強)
+        |-data_aug.py -資料增強的code
+        |-dataset.py -trainingdata,supdata,testdata的dataset處理
+        |-preprocessing 資料預處理
     |-model (神經網路)
-    |-runner (train,test,(TODO)self-supervised learning)
-    |-util(visualization)
-weights-
+        |-backbone.py 定義residual block
+        |-model.py 定義本專題的網路架構
+    |-runner (規劃訓練、測試的流程)
+        |-implementation.py -用來測試training sup test data的可視化結果
+        |-logger.py -紀錄訓練的loss值 並每五個ep存訓練權重
+        |-tester.py -跑測試資料並輸出csv檔
+        |-trainer.py -設計supervised training和sup train的訓練流程
+    |-util (可視化結果，用來看訓練結果)
+        |-visulization -設計可視化的流程並顯示(幫助訓練)
+weights- 存放訓練資料
+    |-
+.gitignore 
+main.py
+
 ```
 ## 2.enviroment
 1.創建虛擬環境
