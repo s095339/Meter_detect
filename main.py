@@ -40,7 +40,7 @@ def parse_args():
 
     return args
 def test(arg,cfg):
-    #定義測試資料的normalization
+    #定義測試資料的transform
     test_transform = transforms.Compose([
                     transforms.ToTensor()]
                     ) 
@@ -54,6 +54,7 @@ def test(arg,cfg):
     )
     Tester.run()
 def train_sup(arg,cfg):
+    #定義sup資料的transform
     sup_transform = transforms.Compose([
                     transforms.ToTensor()]
                     ) 
@@ -61,7 +62,7 @@ def train_sup(arg,cfg):
         cfg = cfg,
         transform = sup_transform
     )
-    
+    #跑sup train流程
     from lib.runner.trainer import sup_trainer
     trainer = sup_trainer(
         cfg = cfg,
@@ -73,12 +74,14 @@ def train_sup(arg,cfg):
     
 
 def implement(arg,cfg):
-    
-    
+    test_transform = transforms.Compose([
+                    transforms.ToTensor()]
+                    ) 
+    #跑可視化結果
     target_transform = torch.tensor
     if arg.impleset == "test" or "":
         dataset = testDataset(cfg = cfg,
-                                transform = transform,
+                                transform = test_transform,
                                 )
     elif arg.impleset == "train":
         dataset = MeterDataset(cfg = cfg,
@@ -88,7 +91,14 @@ def implement(arg,cfg):
     else:
         dataset = SupportDatset(cfg = cfg,
                                 transform = transform)
-    if arg.impleset == "test" or arg.impleset == "train":                          
+    if arg.impleset == "test" :                          
+        from lib.runner.implementation import implementer
+        Implementer = implementer(cfg = cfg,
+                        dataset = dataset,
+                        inv_train = None,#invTrans,
+                        arg = arg)
+        Implementer.run(test_number=100)
+    elif arg.impleset == "train":
         from lib.runner.implementation import implementer
         Implementer = implementer(cfg = cfg,
                         dataset = dataset,

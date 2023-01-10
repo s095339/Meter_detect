@@ -41,6 +41,7 @@ def meterlike(img,key_points,isvisual = False):
     """
     將key points秀在圖片上,然後標誌指針的方向、角度、位置。
     """
+    #img = img*255
     image = img.copy()
     p = [(0,0),(0,0),(0,0),(0,0)]
     color = [
@@ -65,7 +66,8 @@ def meterlike(img,key_points,isvisual = False):
     cv2.putText(image,str("{}".format(value)),(200,200), font, 2,(255,255,255),2)
     if isvisual:
         img_show(image)
-    return
+    
+    return image
 
 def ShowGrayImgFromTensor(img,label):
     img = img.cpu().detach().squeeze().numpy()

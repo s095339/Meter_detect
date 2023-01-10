@@ -13,7 +13,7 @@ from tqdm import tqdm
 from lib.core.acc import angle_calculate
 #------
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
+import cv2
 class implementer:
     """
     隨機對幾筆資料(可以是測試或訓練資料)做implementation並提供可視化結果。
@@ -57,11 +57,11 @@ class implementer:
                 X  = X.cpu().detach().numpy().squeeze()
             print(X.shape)
             pred  = pred.cpu().detach().numpy().squeeze()
-            meterlike(X,pred,isvisual = True)
-        
+            img = meterlike(X,pred,isvisual = True)
+            cv2.imwrite(f"./test/{batch}.jpg",img)
         #mean_loss = total_loss/len(self.valloader)
         #print(f"{bcolors.OKGREEN}validate mean loss = :{bcolors.WARNING}{mean_loss}{bcolors.ENDC}")
-    def run(self,test_number = 10):
+    def run(self,test_number = 100):
         self.validate()
 
 class sup_implementer:
